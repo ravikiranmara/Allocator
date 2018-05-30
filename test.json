@@ -1,0 +1,23 @@
+{
+  "name": "Topolojee",
+  "cpuPerUnit": 10,
+  "numUnits": 10,
+  "components": [ 
+    {
+      "cname": "spout",
+      "allocated": 2,
+      "parent": "null",
+      "input": 100,
+      "output": 100,
+      "cpuUsed": 15
+    },
+    {
+      "cname": "split",
+      "allocated": 4,
+      "parent": "null",
+      "input": 250,
+      "output": 750,
+      "cpuUsed": 40
+    }
+  ]
+}
