@@ -31,18 +31,26 @@ public class FileParser {
         return;
     }
 
-    public void readComponent() throws IOException {
+    public TopologyConfig readTopology() throws IOException {
+        // json stuff
         JsonParser jsonParser = new JsonParser();
-
-        // jsonReader.beginObject();
         JsonObject rootObj = jsonParser.parse(this.fileReader).getAsJsonObject();
-        JsonArray componentArray = rootObj.getAsJsonArray("components");
 
-        String firstName = (String) rootObj.get("firstname").getAsString();
-        System.out.println("The first name is: " + firstName);
+        // get topology name
+        TopologyConfig topologyConfig = new TopologyConfig();
+        String topologyName = rootObj.get("name").getAsString();
+        System.out.println("The first name is: " + topologyName);
+
+        // get unit (cpu per unit)
+        int unit = rootObj.get("unit").getAsInt();
+        System.out.println("Units : " + unit);
+
+        // get numUnits (number of units/workers already allocated)
+        int numUnits = rootObj.get("numUnits").getAsInt();
+        System.out.println("Units : " + numUnits);
 
         // get an array from the JSON object
-        JsonArray comp = (JsonArray) rootObj.get("components");
+        JsonArray comp = (JsonArray) rootObj.get("components").getAsJsonArray();
 
         // take the elements of the json array
         for(int i=0; i<comp.size(); i++){
@@ -53,9 +61,11 @@ public class FileParser {
         // take each value from the json array separately
         while (i.hasNext()) {
             JsonObject innerObj = (JsonObject) i.next();
-            System.out.println("language "+ innerObj.get("name").getAsString() +
+            System.out.println("language "+ innerObj.get("cname").getAsString() +
                     " with level");
         }
+
+        return topologyConfig;
     }
 }
 
