@@ -11,9 +11,9 @@ import java.util.HashMap;
  */
 public class TopologyConfig {
     private String topologyName;
-    private int cpuUnits;
+    private int cpuPerUnits;
     private int numUnits;
-    private ArrayList<ComponentConfig> components;
+    private List<ComponentConfig> components;
 
     public String getTopologyName() {
         return topologyName;
@@ -21,14 +21,6 @@ public class TopologyConfig {
 
     public void setTopologyName(String topologyName) {
         this.topologyName = topologyName;
-    }
-
-    public int getCpuUnits() {
-        return cpuUnits;
-    }
-
-    public void setCpuUnits(int cpuUnits) {
-        this.cpuUnits = cpuUnits;
     }
 
     public int getNumUnits() {
@@ -39,7 +31,7 @@ public class TopologyConfig {
         this.numUnits = numUnits;
     }
 
-    public ArrayList<ComponentConfig> getComponents() {
+    public List<ComponentConfig> getComponents() {
         return components;
     }
 
@@ -50,5 +42,13 @@ public class TopologyConfig {
     public void addComponent(ComponentConfig component) {
         if(null != component)
             components.add(component);
+    }
+
+    public int getCpuPerUnits() {
+        return cpuPerUnits;
+    }
+
+    public void setCpuPerUnits(int cpuPerUnits) {
+        this.cpuPerUnits = cpuPerUnits;
     }
 }

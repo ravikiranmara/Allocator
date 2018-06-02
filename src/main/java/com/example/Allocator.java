@@ -14,6 +14,7 @@ public class Allocator {
         try {
             System.out.println("Enter file path : ");
 
+            // Read file
             String filePath = new String("//home//wiz//junk//test.json");
             FileParser fileParser = new FileParser(filePath);
 
