@@ -42,8 +42,8 @@ public class FileParser {
         System.out.println("The first name is: " + topologyName);
 
         // get unit (cpu per unit)
-        int unit = rootObj.get("unit").getAsInt();
-        System.out.println("Units : " + unit);
+        int cpuPerUnit = rootObj.get("cpuPerUnit").getAsInt();
+        System.out.println("Units : " + cpuPerUnit);
 
         // get numUnits (number of units/workers already allocated)
         int numUnits = rootObj.get("numUnits").getAsInt();
@@ -54,20 +54,60 @@ public class FileParser {
 
         // take the elements of the json array
         for(int i=0; i<comp.size(); i++){
-            System.out.println("The " + i + " element of the array: "+comp.get(i));
+            System.out.println("The " + i + " element of the array: " + comp.get(i));
         }
         Iterator i = comp.iterator();
 
         // take each value from the json array separately
         while (i.hasNext()) {
             JsonObject innerObj = (JsonObject) i.next();
-            System.out.println("language "+ innerObj.get("cname").getAsString() +
-                    " with level");
+
+            // Component name
+            String cname = innerObj.get("cname").getAsString();
+            System.out.println("name: "+ cname);
+
+            // allocated
+            int numAllocated = innerObj.get("allocated").getAsInt();
+            System.out.println("allocated"+ numAllocated);
+
+            // input
+            int input = innerObj.get("input").getAsInt();
+            System.out.println("input: "+ input);
+
+            // output
+            int output = innerObj.get("output").getAsInt();
+            System.out.println("output: "+ output);
+
+            // cpu used
+            int cpuUsed = innerObj.get("cpuUsed").getAsInt();
+            System.out.println("cpuUsed: "+ cpuUsed);
+
+            // parent name
+            String parent = innerObj.get("parent").getAsString();
+            System.out.println("parent: "+ parent);
+
+            // output distribution
+            if(innerObj.get("children") == null) {
+                System.out.println("No children");
+                continue;
+            }
+            JsonArray child = (JsonArray) innerObj.get("children").getAsJsonArray();
+
+            // child handle
+            Iterator j = child.iterator();
+            while (j.hasNext()) {
+                JsonObject childObj = (JsonObject) j.next();
+
+                // Component name
+                String childName = childObj.get("child").getAsString();
+                System.out.println("child: "+ childName);
+
+                double childRatio = childObj.get("childRatio").getAsDouble();
+                System.out.println("childRatio: "+ childRatio);
+            }
         }
 
         return topologyConfig;
     }
 }
-
-
 
