@@ -6,15 +6,47 @@
     {
       "cname": "spout",
       "allocated": 2,
-      "parent": "null",
+      "parents": [
+        {
+          "parent": "null"
+        }
+      ],
       "input": 100,
       "output": 100,
-      "cpuUsed": 15
+      "cpuUsed": 15, 
+      "children": [
+        {
+          "child": "split",
+          "childRatio": 1
+        }
+      ]
     },
     {
       "cname": "split",
       "allocated": 4,
-      "parent": "null",
+      "parents": [
+        {
+          "parent": "spout"
+        }
+      ],
+      "input": 250,
+      "output": 750,
+      "cpuUsed": 40, 
+      "children": [
+        {
+          "child": "count",
+          "childRatio": 1
+        }
+      ]
+    },
+    {
+      "cname": "count",
+      "allocated": 2,
+      "parents": [
+        {
+          "parent": "split"
+        }
+      ],
       "input": 250,
       "output": 750,
       "cpuUsed": 40
