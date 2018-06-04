@@ -18,7 +18,11 @@ public class Allocator {
             String filePath = new String("//home//wiz//junk//test.json");
             FileParser fileParser = new FileParser(filePath);
 
-            fileParser.readTopology();
+            // fileParser.dumpTopology();
+            TopologyConfig topologyConfig = fileParser.readTopologyConfig();
+            Topology topology = new Topology(topologyConfig);
+            topology.dump();
+
 
         } catch (IOException ex) {
             System.out.println("IO exception while reading filename");

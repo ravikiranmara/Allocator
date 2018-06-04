@@ -15,6 +15,26 @@ public class TopologyConfig {
     private int numUnits;
     private List<ComponentConfig> components;
 
+    // constructor
+    public TopologyConfig() {
+        components = new ArrayList<ComponentConfig>();
+    }
+
+    // dump
+    public void dump () {
+        System.out.println("=====================================================================");
+        System.out.println("TopologyConfig");
+        System.out.println("-----------------------");
+        System.out.println("Name : " + this.getTopologyName());
+        System.out.println("Cpu per unit : " + this.getCpuPerUnits());
+
+        System.out.println("Components : ");
+        for (ComponentConfig comp : this.getComponents()) {
+            comp.dump();
+        }
+    }
+
+    // getter and setter
     public String getTopologyName() {
         return topologyName;
     }
@@ -35,7 +55,7 @@ public class TopologyConfig {
         return components;
     }
 
-    public void setComponents(ArrayList<ComponentConfig> components) {
+    public void setComponents(List<ComponentConfig> components) {
         this.components = components;
     }
 

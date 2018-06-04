@@ -1,15 +1,55 @@
 package com.example;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * Created by wiz on 6/1/18.
  */
 public class Component {
     String name;
-    int inputPerCpu;
-    double inputToOutputRatio;
+    Double inputPerCpu;
+    Double inputToOutputRatio;
     boolean congested;
+   List<String> parents;
+    Map<String, Double> children;
     ComponentState projected;
     ComponentState current;
+    long cpuPerUnit;
+
+    public void dump () {
+        System.out.println("=====================================================================");
+        System.out.println("Component");
+        System.out.println("-----------------------");
+        System.out.println("Name : " + this.name);
+        System.out.println("input : " + this.current.getIn());
+        System.out.println("output : " + this.current.getOut());
+        System.out.println("allocated : " + this.current.getAllocated());
+        System.out.println("cpu used : " + this.current.getCpuUsed());
+        System.out.println("cpuPerUnit : " + this.cpuPerUnit);
+        System.out.println("inputPerCpu : " + this.getInputPerCpu());
+        System.out.println("inputToOutputRatio : " + this.getInputToOutputRatio());
+
+        System.out.println("Parents :- ");
+
+        for (String parent : this.parents)
+            System.out.println("\t" + parent);
+
+        System.out.println("Children :-");
+        for (Map.Entry<String, Double> child : this.children.entrySet())
+            System.out.println("\t" + child.getKey() + ":" + child.getValue());
+    }
+
+    // getter and setter
+    public long getCpuPerUnit() {
+        return cpuPerUnit;
+    }
+
+    public void setCpuPerUnit(long cpuPerUnit) {
+        this.cpuPerUnit = cpuPerUnit;
+    }
 
     public String getName() {
         return name;
@@ -19,19 +59,19 @@ public class Component {
         this.name = name;
     }
 
-    public int getInputPerCpu() {
+    public Double getInputPerCpu() {
         return inputPerCpu;
     }
 
-    public void setInputPerCpu(int inputPerCpu) {
+    public void setInputPerCpu(Double inputPerCpu) {
         this.inputPerCpu = inputPerCpu;
     }
 
-    public double getInputToOutputRatio() {
+    public Double getInputToOutputRatio() {
         return inputToOutputRatio;
     }
 
-    public void setInputToOutputRatio(double inputToOutputRatio) {
+    public void setInputToOutputRatio(Double inputToOutputRatio) {
         this.inputToOutputRatio = inputToOutputRatio;
     }
 
@@ -57,5 +97,55 @@ public class Component {
 
     public void setProjected(ComponentState projected) {
         this.projected = projected;
+    }
+
+    public List<String> getParents() {
+        return parents;
+    }
+
+    public void setParents(List<String> parents) {
+        this.parents = parents;
+    }
+
+    public Map<String, Double> getChildren() {
+        return children;
+    }
+
+    public void setChildren(Map<String, Double> children) {
+        this.children = children;
+    }
+
+    private void initialize() {
+        this.projected = new ComponentState();
+        this.current = new ComponentState();
+        this.parents = new ArrayList<String>();
+        this.children = new HashMap<String, Double>();
+    }
+
+    // constructor
+    public Component (ComponentConfig componentConfig) {
+        this.initialize();
+        this.setName(componentConfig.getName());
+
+        // read current state
+        this.setCpuPerUnit(componentConfig.getCpuPerUnit());
+        this.current.setIn(componentConfig.getInput());
+        this.current.setOut(componentConfig.getOutput());
+        this.current.setCpuUsed(componentConfig.getCpuUsed());
+        this.current.setAllocated(componentConfig.getResourceAllocated());
+
+        // calculate related stats
+        this.setInputPerCpu(new Double(this.current.getIn()/this.current.getCpuUsed()));
+        double iorat = this.current.getIn()/this.current.getOut();
+        this.setInputToOutputRatio(iorat);
+        if (this.current.getCpuUsed() == this.current.getAllocated() * this.getCpuPerUnit()) {
+            this.setCongested(true);
+        } else {
+            this.setCongested(false);
+        }
+
+        // get parents and children
+        this.parents = componentConfig.getParents();
+        this.children = componentConfig.getChildren();
     }
 }
