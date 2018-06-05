@@ -13,7 +13,7 @@ public class Component {
     Double inputPerCpu;
     Double inputToOutputRatio;
     boolean congested;
-   List<String> parents;
+    List<String> parents;
     Map<String, Double> children;
     ComponentState projected;
     ComponentState current;
@@ -76,7 +76,19 @@ public class Component {
     }
 
     public boolean isCongested() {
-        return congested;
+        if (this.getCurrent().getCpuUsed() ==
+            this.getCurrent().getAllocated() * this.getCpuPerUnit())
+            return true;
+
+        return false;
+    }
+
+    public boolean isCongestedProjected() {
+        if (this.getProjected().getCpuUsed() ==
+            this.getProjected().getAllocated() * this.getCpuPerUnit())
+            return true;
+
+        return false;
     }
 
     public void setCongested(boolean congested) {
@@ -115,6 +127,19 @@ public class Component {
         this.children = children;
     }
 
+    public Double getChildOutputRatio (String name) {
+        return this.getChildren().get(name);
+    }
+
+    public long getCpuForInput(long input) {
+       return (int) Math.ceil((double)input/this.getInputPerCpu().doubleValue());
+    }
+
+    public int getResourcesForInput(long input) {
+        long cpu = (long) Math.ceil((double)input/this.getInputPerCpu().doubleValue());
+        return (int) Math.ceil(cpu/cpuPerUnit);
+    }
+
     private void initialize() {
         this.projected = new ComponentState();
         this.current = new ComponentState();
@@ -133,6 +158,11 @@ public class Component {
         this.current.setOut(componentConfig.getOutput());
         this.current.setCpuUsed(componentConfig.getCpuUsed());
         this.current.setAllocated(componentConfig.getResourceAllocated());
+
+        this.projected.setIn(componentConfig.getInput());
+        this.projected.setOut(componentConfig.getOutput());
+        this.projected.setCpuUsed(componentConfig.getCpuUsed());
+        this.projected.setAllocated(componentConfig.getResourceAllocated());
 
         // calculate related stats
         this.setInputPerCpu(new Double(this.current.getIn()/this.current.getCpuUsed()));

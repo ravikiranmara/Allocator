@@ -101,6 +101,31 @@ public class Topology {
         this.currentThroughput = currentThroughput;
     }
 
+    public Component getComponent(String name) {
+        return this.components.get(name);
+    }
+
+    public long getInputFromParentProjected(String name) {
+        Component component = this.getComponent(name);
+
+        // get all parents
+        List<String> parents = component.getParents();
+        List<Component> parentcomponents = new ArrayList<Component>();
+        for (String parent : parents) {
+            parentcomponents.add(this.getComponent(parent));
+        }
+
+        // get input from parents
+        long totalInput = 0;
+        for (Component parent : parentcomponents) {
+            Double ratio = parent.getChildOutputRatio(name);
+            long totalOutput = parent.getProjected().getOut();
+            totalInput += ratio * totalOutput;
+        }
+
+        return totalInput;
+    }
+
     public void calculateSpouts() {
         this.spout = new ArrayList<String>();
         for (Map.Entry<String, Component> entry : components.entrySet()) {
