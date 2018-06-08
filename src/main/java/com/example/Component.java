@@ -9,15 +9,15 @@ import java.util.Map;
  * Created by wiz on 6/1/18.
  */
 public class Component {
-    String name;
-    Double inputPerCpu;
-    Double inputToOutputRatio;
-    boolean congested;
-    List<String> parents;
-    Map<String, Double> children;
-    ComponentState projected;
-    ComponentState current;
-    long cpuPerUnit;
+    private String name;
+    private long inputPerCpu;
+    private Double inputToOutputRatio;
+    private boolean congested;
+    private List<String> parents;
+    private Map<String, Double> children;
+    private ComponentState projected;
+    private ComponentState current;
+    private long cpuPerUnit;
 
     public void dump () {
         System.out.println("=====================================================================");
@@ -59,11 +59,11 @@ public class Component {
         this.name = name;
     }
 
-    public Double getInputPerCpu() {
+    public long getInputPerCpu() {
         return inputPerCpu;
     }
 
-    public void setInputPerCpu(Double inputPerCpu) {
+    public void setInputPerCpu(long inputPerCpu) {
         this.inputPerCpu = inputPerCpu;
     }
 
@@ -132,12 +132,20 @@ public class Component {
     }
 
     public long getCpuForInput(long input) {
-       return (int) Math.ceil((double)input/this.getInputPerCpu().doubleValue());
+       return (long) Math.ceil((double)input/this.getInputPerCpu());
     }
 
-    public int getResourcesForInput(long input) {
-        long cpu = (long) Math.ceil((double)input/this.getInputPerCpu().doubleValue());
-        return (int) Math.ceil(cpu/cpuPerUnit);
+    public long getResourcesForInput(long input) {
+        long cpu = (long) Math.ceil((double)input/this.getInputPerCpu());
+        return (long) Math.ceil(cpu/cpuPerUnit);
+    }
+
+    public long getMaxInput(long numResources) {
+        return numResources * this.getInputPerCpu() * this.getCpuPerUnit();
+    }
+
+    public long getNewAllocated() {
+        return this.getProjected().getAllocated() - this.getCurrent().getAllocated();
     }
 
     private void initialize() {
@@ -165,8 +173,9 @@ public class Component {
         this.projected.setAllocated(componentConfig.getResourceAllocated());
 
         // calculate related stats
-        this.setInputPerCpu(new Double(this.current.getIn()/this.current.getCpuUsed()));
-        double iorat = this.current.getIn()/this.current.getOut();
+        this.setInputPerCpu((long)Math.ceil(this.current.getIn()/this.current.getCpuUsed()));
+        System.out.println("System input per cpu : " + this.getInputPerCpu());
+        double iorat = (double)(this.current.getOut())/this.current.getIn();
         this.setInputToOutputRatio(iorat);
         if (this.current.getCpuUsed() == this.current.getAllocated() * this.getCpuPerUnit()) {
             this.setCongested(true);

@@ -4,10 +4,10 @@ package com.example;
  * Created by wiz on 6/1/18.
  */
 public class ComponentState {
-    long in;
-    long out;
-    long allocated;
-    long cpuUsed;
+    private long in;
+    private long out;
+    private long allocated;
+    private long cpuUsed;
 
     // getter and setter
     public long getIn() {
@@ -40,6 +40,14 @@ public class ComponentState {
 
     public void setCpuUsed(long cpuUsed) {
         this.cpuUsed = cpuUsed;
+    }
+
+    public void dump() {
+        System.out.println("ComponentState");
+        System.out.println("\t allocated : " + this.getAllocated());
+        System.out.println("\t in : " + this.getIn());
+        System.out.println("\t out : " + this.getOut());
+        System.out.println("\t Cpu used : " + this.getCpuUsed());
     }
 
 }

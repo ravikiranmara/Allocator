@@ -123,7 +123,56 @@ public class Topology {
             totalInput += ratio * totalOutput;
         }
 
+        System.out.println("Input from parents of comp - " + name + ":" + totalInput);
+
         return totalInput;
+    }
+
+    public long getResourcesRequiredProjected(String name) {
+        long input = this.getInputFromParentProjected(name);
+        Component component = this.getComponent(name);
+
+        long required = component.getResourcesForInput(input);
+        System.out.println("Required for projected comp - " + name + ":" + required);
+        return required;
+    }
+
+    public long getResourcesRequiredAdditionalProjected(String name) {
+        long needed = this.getResourcesRequiredProjected(name);
+        long allocated = this.getComponent(name).getCurrent().getAllocated();
+        return (needed - allocated);
+    }
+
+    public ComponentState getProjectedForState(String name, long numResources) {
+        Component comp = this.getComponent(name);
+        ComponentState newProjected = new ComponentState();
+        ComponentState current = comp.getCurrent();
+        System.out.println("Allocate to projected : " + name  + ":" + numResources);
+
+        // get input
+        long parentInput = getInputFromParentProjected(name);
+        long maxInput = comp.getMaxInput(numResources);
+        long input = Math.min(maxInput, parentInput);
+        long cpu = (long)Math.ceil(input/comp.getInputPerCpu());
+
+        // calculate new input/output
+        newProjected.setAllocated(numResources);
+        newProjected.setIn(input);
+        newProjected.setOut((long)Math.ceil((input * comp.getInputToOutputRatio())));
+        newProjected.setAllocated(numResources);
+        newProjected.setCpuUsed(cpu);
+
+        System.out.println("Input : " + input + ", out : " + newProjected.getOut() + ", resource : " + numResources);
+
+        return newProjected;
+    }
+
+    public void allocateToProjected(String name, long numResources) {
+        Component comp = this.getComponent(name);
+        ComponentState newState = this.getProjectedForState(name, numResources);
+
+        // set it back
+        comp.setProjected(newState);
     }
 
     public void calculateSpouts() {
@@ -153,8 +202,8 @@ public class Topology {
         this.congested = new ArrayList<String>();
         for (Map.Entry<String, Component> entry : components.entrySet()) {
             Component comp = entry.getValue();
-            long cpuUsed = comp.current.getCpuUsed();
-            long cpuAllocated = comp.current.getAllocated() * comp.getCpuPerUnit();
+            long cpuUsed = comp.getCurrent().getCpuUsed();
+            long cpuAllocated = comp.getCurrent().getAllocated() * comp.getCpuPerUnit();
             if(cpuUsed == cpuAllocated) {
                 this.congested.add(entry.getKey());
             }

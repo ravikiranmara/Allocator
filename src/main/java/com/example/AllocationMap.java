@@ -7,25 +7,42 @@ import java.util.Map;
  * Created by wiz on 6/4/18.
  */
 public class AllocationMap {
-    private Map<String, Integer> allocationMap;
+    private Map<String, Long> allocationMap;
 
     AllocationMap() {
-        allocationMap = new HashMap<String, Integer>();
+        allocationMap = new HashMap<String, Long>();
     }
 
     public void incrementAllocation(String component) {
-        Integer val = this.allocationMap.get(component);
+        Long val = this.allocationMap.get(component);
         if (null == val)
-            val = 0;
+            val = new Long(0);
 
         this.allocationMap.put(component, val+1);
     }
 
-    public void setAllocationForComponent(String component, int value) {
+    public void setAllocationForComponent(String component, long value) {
         this.allocationMap.put(component, value);
     }
 
-    public Map<String, Integer> getAllocationMap() {
+    public Map<String, Long> getAllocationMap() {
         return this.allocationMap;
+    }
+
+    public void dump() {
+        System.out.println("Dumping Allocation Map :- ");
+        for (Map.Entry<String, Long> entry : allocationMap.entrySet()) {
+            System.out.println(entry.getKey() + ":" + entry.getValue());
+        }
+    }
+
+    public Long getTotalAllocatedAdditionalResources() {
+        long total = 0;
+
+        for (Map.Entry<String, Long> entry : allocationMap.entrySet()) {
+            total += entry.getValue().longValue();
+        }
+
+        return total;
     }
 }
