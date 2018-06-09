@@ -45,7 +45,9 @@ public class Allocator {
                 // head resources - does this matter?
 
                 // set roi
-                allocatorCell.setRoi((double)throughputIncrease/allocatedResources);
+                if(allocatedResources != 0)
+                    allocatorCell.setRoi((double)throughputIncrease/allocatedResources);
+                else allocatorCell.setRoi(0);
 
                 allocatorTable.add(allocatorCell);
             }
@@ -99,6 +101,7 @@ public class Allocator {
 
     public void sortAllocatorTable(List<AllocatorCell> allocatorTable) {
         // sort by roi
+        
         // sort by resources
     }
 
@@ -126,6 +129,12 @@ public class Allocator {
             Allocator allocator = new Allocator();
 
             List<AllocatorCell> allocatorTable = allocator.getAllocateTable(topology, freeResources);
+            allocator.dumpAllocatorTable(allocatorTable);
+
+            System.out.println("~~~~~~~~   Sorted  ~~~~~~~~~~~");
+
+            Collections.sort(allocatorTable);
+            Collections.reverse(allocatorTable);
             allocator.dumpAllocatorTable(allocatorTable);
 
         } catch (IOException ex) {

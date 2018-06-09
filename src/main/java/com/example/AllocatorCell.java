@@ -3,7 +3,7 @@ package com.example;
 /**
  * Created by wiz on 6/4/18.
  */
-public class AllocatorCell {
+public class AllocatorCell implements Comparable<AllocatorCell> {
     private long resourceAllocated;
     private long throughputIncrease;
     private AllocationMap allocationMap;
@@ -49,6 +49,18 @@ public class AllocatorCell {
 
     public void setHeadComponent(String headComponent) {
         this.headComponent = headComponent;
+    }
+
+    public int compareTo(AllocatorCell allocatorCell) {
+        if(this.getRoi() > allocatorCell.getRoi()) {
+            return 1;
+        } else if (this.getRoi() < allocatorCell.getRoi()) {
+            return -1;
+        } else {
+            if (this.getResourceAllocated() < allocatorCell.getResourceAllocated())
+                return 1;
+            else return -1;
+        }
     }
 
     public void dump() {
