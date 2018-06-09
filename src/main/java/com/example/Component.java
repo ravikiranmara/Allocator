@@ -20,14 +20,9 @@ public class Component {
     private long cpuPerUnit;
 
     public void dump () {
-        System.out.println("=====================================================================");
-        System.out.println("Component");
-        System.out.println("-----------------------");
-        System.out.println("Name : " + this.name);
-        System.out.println("input : " + this.current.getIn());
-        System.out.println("output : " + this.current.getOut());
-        System.out.println("allocated : " + this.current.getAllocated());
-        System.out.println("cpu used : " + this.current.getCpuUsed());
+        System.out.println();
+
+        System.out.println("Name : " + this.getName());
         System.out.println("cpuPerUnit : " + this.cpuPerUnit);
         System.out.println("inputPerCpu : " + this.getInputPerCpu());
         System.out.println("inputToOutputRatio : " + this.getInputToOutputRatio());
@@ -40,6 +35,14 @@ public class Component {
         System.out.println("Children :-");
         for (Map.Entry<String, Double> child : this.children.entrySet())
             System.out.println("\t" + child.getKey() + ":" + child.getValue());
+
+        System.out.println("Current:-");
+        this.current.dump();
+
+        System.out.println("Projected:-");
+        this.projected.dump();
+
+        System.out.println();
     }
 
     // getter and setter
@@ -174,7 +177,6 @@ public class Component {
 
         // calculate related stats
         this.setInputPerCpu((long)Math.ceil(this.current.getIn()/this.current.getCpuUsed()));
-        System.out.println("System input per cpu : " + this.getInputPerCpu());
         double iorat = (double)(this.current.getOut())/this.current.getIn();
         this.setInputToOutputRatio(iorat);
         if (this.current.getCpuUsed() == this.current.getAllocated() * this.getCpuPerUnit()) {

@@ -18,7 +18,7 @@ public class Topology {
     int currentThroughput;
 
     public void dump() {
-        System.out.println("=====================================================================");
+        System.out.println("\n=====================================================================");
         System.out.println("TopologyConfig");
         System.out.println("-----------------------");
         System.out.println("Name : " + this.getName());
@@ -43,6 +43,7 @@ public class Topology {
         for (String comp : this.getCongested()) {
             System.out.println(comp);
         }
+        System.out.println("\n=====================================================================");
     }
 
     public String getName() {
@@ -93,14 +94,6 @@ public class Topology {
         this.congested = congested;
     }
 
-    public int getCurrentThroughput() {
-        return currentThroughput;
-    }
-
-    public void setCurrentThroughput(int currentThroughput) {
-        this.currentThroughput = currentThroughput;
-    }
-
     public Component getComponent(String name) {
         return this.components.get(name);
     }
@@ -123,7 +116,7 @@ public class Topology {
             totalInput += ratio * totalOutput;
         }
 
-        System.out.println("Input from parents of comp - " + name + ":" + totalInput);
+        // System.out.println("Input from parents of comp - " + name + ":" + totalInput);
 
         return totalInput;
     }
@@ -133,7 +126,7 @@ public class Topology {
         Component component = this.getComponent(name);
 
         long required = component.getResourcesForInput(input);
-        System.out.println("Required for projected comp - " + name + ":" + required);
+        // System.out.println("Required for projected comp - " + name + ":" + required);
         return required;
     }
 
@@ -147,7 +140,7 @@ public class Topology {
         Component comp = this.getComponent(name);
         ComponentState newProjected = new ComponentState();
         ComponentState current = comp.getCurrent();
-        System.out.println("Allocate to projected : " + name  + ":" + numResources);
+        // System.out.println("Allocate to projected : " + name  + ":" + numResources);
 
         // get input
         long parentInput = getInputFromParentProjected(name);
@@ -162,7 +155,7 @@ public class Topology {
         newProjected.setAllocated(numResources);
         newProjected.setCpuUsed(cpu);
 
-        System.out.println("Input : " + input + ", out : " + newProjected.getOut() + ", resource : " + numResources);
+        // System.out.println("Input : " + input + ", out : " + newProjected.getOut() + ", resource : " + numResources);
 
         return newProjected;
     }
@@ -208,6 +201,42 @@ public class Topology {
                 this.congested.add(entry.getKey());
             }
         }
+    }
+
+    public void cleanProjected() {
+        for (Map.Entry<String, Component> entry : components.entrySet()) {
+            Component comp = entry.getValue();
+            comp.setProjected(comp.getCurrent());
+        }
+    }
+
+    public void makeMapAllocation(AllocationMap allocationMap) {
+        this.cleanProjected();
+        for (Map.Entry<String, Long> alloc : allocationMap.getAllocationMap().entrySet()) {
+            Component comp = this.getComponent(alloc.getKey());
+            long totalResources = comp.getCurrent().getAllocated() + alloc.getValue();
+            this.allocateToProjected(alloc.getKey(), totalResources);
+        }
+    }
+
+    public long getCurrentThroughput() {
+        long totalOutput = 0;
+        for (String leaf : this.getLeaves()) {
+            Component comp = this.getComponent(leaf);
+            totalOutput += comp.getCurrent().getOut();
+        }
+
+        return totalOutput;
+    }
+
+    public long getProjectedThroughput() {
+        long totalOutput = 0;
+        for (String leaf : this.getLeaves()) {
+            Component comp = this.getComponent(leaf);
+            totalOutput += comp.getProjected().getOut();
+        }
+
+        return totalOutput;
     }
 
     public void initialize() {

@@ -42,6 +42,13 @@ public class ComponentState {
         this.cpuUsed = cpuUsed;
     }
 
+    public void copy(ComponentState newState) {
+        this.setIn(newState.getIn());
+        this.setOut(newState.getOut());
+        this.setAllocated(newState.getAllocated());
+        this.setCpuUsed(newState.getAllocated());
+    }
+
     public void dump() {
         System.out.println("ComponentState");
         System.out.println("\t allocated : " + this.getAllocated());
@@ -49,5 +56,4 @@ public class ComponentState {
         System.out.println("\t out : " + this.getOut());
         System.out.println("\t Cpu used : " + this.getCpuUsed());
     }
-
 }

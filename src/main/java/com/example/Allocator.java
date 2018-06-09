@@ -13,14 +13,15 @@ public class Allocator {
     Allocator() {
     }
 
-    public Map<String, AllocatorCell> getAllocateTable(Topology topology, int maxResources) {
-        Map<String, AllocatorCell> allocatorTable = new HashMap<String, AllocatorCell>();
+    public List<AllocatorCell> getAllocateTable(Topology topology, int maxResources) {
+        List<AllocatorCell> allocatorTable = new ArrayList<AllocatorCell>();
         List<String> congested = topology.getCongested();
 
         for(String comp : congested) {
             Component component = topology.getComponent(comp);
             for (int res=0; res<maxResources; res++) {
                 long required = topology.getResourcesRequiredAdditionalProjected(component.getName());
+                AllocatorCell allocatorCell = new AllocatorCell();
 
                 if (res > required) {
                     System.out.println("skipping : " + comp + ":" + res);
@@ -29,12 +30,33 @@ public class Allocator {
 
                 AllocationMap allocationMap =
                     this.getAllocationForSubtree(component, res, topology);
-                allocationMap.dump();
-            }
 
+                // set map
+                allocatorCell.setAllocationMap(allocationMap);
+
+                // set throughput
+                long throughputIncrease = this.getThroughputIncrease(topology, allocationMap);
+                allocatorCell.setThroughputIncrease(throughputIncrease);
+
+                // resource allocated
+                long allocatedResources = allocationMap.getTotalAllocatedAdditionalResources();
+                allocatorCell.setResourceAllocated(allocatedResources);
+
+                // head resources - does this matter?
+
+                // set roi
+                allocatorCell.setRoi((double)throughputIncrease/allocatedResources);
+
+                allocatorTable.add(allocatorCell);
+            }
         }
 
         return allocatorTable;
+    }
+
+    public long getThroughputIncrease(Topology topology, AllocationMap allocationMap) {
+        topology.makeMapAllocation(allocationMap);
+        return Math.max(0, topology.getProjectedThroughput() - topology.getCurrentThroughput());
     }
 
     public AllocationMap getAllocationForSubtree(Component component, int rootRes, Topology topology) {
@@ -66,7 +88,6 @@ public class Allocator {
             // get additional resources required
             long required = topology.getResourcesRequiredProjected(comp.getName());
             topology.allocateToProjected(comp.getName(), required);
-            comp.getProjected().dump();
 
             // add resources to allocation map
             long requiredAdditional = topology.getResourcesRequiredAdditionalProjected(comp.getName());
@@ -76,10 +97,21 @@ public class Allocator {
         return allocationMap;
     }
 
+    public void sortAllocatorTable(List<AllocatorCell> allocatorTable) {
+        // sort by roi
+        // sort by resources
+    }
+
+    public void dumpAllocatorTable(List<AllocatorCell> allocatorTable) {
+        for (AllocatorCell allocatorCell : allocatorTable) {
+            allocatorCell.dump();
+        }
+    }
+
     public static void main(String[] args) {
         try {
             System.out.println("Enter file path : ");
-            int freeResources = 3;
+            int freeResources = 15;
 
             // Read file
             String filePath = new String("//home//wiz//junk//test.json");
@@ -93,8 +125,8 @@ public class Allocator {
             // call allocator to get allocate estimate
             Allocator allocator = new Allocator();
 
-            Map<String, AllocatorCell> allocatorTable = allocator.getAllocateTable(topology, freeResources);
-
+            List<AllocatorCell> allocatorTable = allocator.getAllocateTable(topology, freeResources);
+            allocator.dumpAllocatorTable(allocatorTable);
 
         } catch (IOException ex) {
             System.out.println("IO exception while reading filename");
