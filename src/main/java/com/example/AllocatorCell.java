@@ -66,6 +66,7 @@ public class AllocatorCell implements Comparable<AllocatorCell> {
     public void dump() {
         System.out.println();
         System.out.println("Allocator Cell :-");
+        System.out.println("Head: " + this.getHeadComponent());
         System.out.println("Resource Allocated : " + this.getResourceAllocated());
         System.out.println("Throughput Increase : " + this.getThroughputIncrease());
         System.out.println("Roi : " + this.getRoi());

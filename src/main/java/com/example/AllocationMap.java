@@ -45,4 +45,28 @@ public class AllocationMap {
 
         return total;
     }
+
+    public void removeAllocation(AllocationMap ralloc) {
+         for (Map.Entry<String, Long> entry : ralloc.getAllocationMap().entrySet()) {
+             Long remres = entry.getValue();
+             Long nres = allocationMap.get(entry.getKey());
+             if (nres == null || nres == 0 || remres-nres < 0) {
+                 System.out.println("This shouldn't happen. the allocation does not exist to remove");
+             }
+
+             this.setAllocationForComponent(entry.getKey(), remres - nres);
+        }
+    }
+
+    public void addAllocation(AllocationMap alloc) {
+        for (Map.Entry<String, Long> entry : alloc.getAllocationMap().entrySet()) {
+             Long remres = entry.getValue();
+             Long nres = this.allocationMap.get(entry.getKey());
+             if (nres == null)
+                 nres = 0L;
+
+             System.out.println("Set comp : " + entry.getKey() + ", " + (remres+nres));
+             this.setAllocationForComponent(entry.getKey(), remres + nres);
+        }
+    }
 }
