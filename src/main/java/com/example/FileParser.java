@@ -81,6 +81,10 @@ public class FileParser {
             int cpuUsed = innerObj.get("cpuUsed").getAsInt();
             componentConfig.setCpuUsed(cpuUsed);
 
+            // inputPerUnit used
+            int maxInputPerUnit = innerObj.get("maxInputPerUnit").getAsInt();
+            componentConfig.setMaxInputPerUnit(maxInputPerUnit);
+
             // parent name
             JsonArray parents = innerObj.get("parents").getAsJsonArray();
             Iterator p = parents.iterator();

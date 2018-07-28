@@ -18,6 +18,7 @@ public class Component {
     private ComponentState projected;
     private ComponentState current;
     private long cpuPerUnit;
+    private long maxInputPerUnit;
 
     public void dump () {
         System.out.println();
@@ -26,6 +27,7 @@ public class Component {
         System.out.println("cpuPerUnit : " + this.cpuPerUnit);
         System.out.println("inputPerCpu : " + this.getInputPerCpu());
         System.out.println("inputToOutputRatio : " + this.getInputToOutputRatio());
+        System.out.println("maxInputPerUnit : " + this.getMaxInputPerUnit());
 
         System.out.println("Parents :- ");
 
@@ -68,6 +70,14 @@ public class Component {
 
     public void setInputPerCpu(long inputPerCpu) {
         this.inputPerCpu = inputPerCpu;
+    }
+
+    public long getMaxInputPerUnit() {
+        return this.maxInputPerUnit;
+    }
+
+    public void setMaxInputPerUnit(long maxInputPerUnit) {
+        this.maxInputPerUnit = maxInputPerUnit;
     }
 
     public Double getInputToOutputRatio() {
@@ -139,8 +149,9 @@ public class Component {
     }
 
     public long getResourcesForInput(long input) {
-        long cpu = (long) Math.ceil((double)input/this.getInputPerCpu());
-        return (long) Math.ceil(cpu/cpuPerUnit);
+        // long cpu = (long) Math.ceil((double)input/this.getInputPerCpu());
+        // return (long) Math.ceil(cpu/cpuPerUnit);
+        return (long) Math.ceil((double)input/this.getMaxInputPerUnit());
     }
 
     public long getMaxInput(long numResources) {
@@ -165,6 +176,7 @@ public class Component {
 
         // read current state
         this.setCpuPerUnit(componentConfig.getCpuPerUnit());
+        this.setMaxInputPerUnit(componentConfig.getMaxInputPerUnit());
         this.current.setIn(componentConfig.getInput());
         this.current.setOut(componentConfig.getOutput());
         this.current.setCpuUsed(componentConfig.getCpuUsed());

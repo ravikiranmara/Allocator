@@ -23,6 +23,8 @@ public class ComponentConfig {
 
     private long cpuPerUnit;
 
+    private long maxInputPerUnit;
+
     private Map<String, Double> children;
 
     // constructor
@@ -41,6 +43,7 @@ public class ComponentConfig {
         System.out.println("allocated : " + this.getResourceAllocated());
         System.out.println("cpu used : " + this.getCpuUsed());
         System.out.println("cpuPerUnit : " + this.getCpuPerUnit());
+        System.out.println("maxInputPerUnit : " + this.getMaxInputPerUnit());
 
         System.out.println("Parents :- ");
         for (String parent : this.parents)
@@ -94,6 +97,14 @@ public class ComponentConfig {
 
     public void setInput(long input) {
         this.input = input;
+    }
+
+    public long getMaxInputPerUnit() {
+        return this.maxInputPerUnit;
+    }
+
+    public void setMaxInputPerUnit(long maxInputPerUnit) {
+        this.maxInputPerUnit = maxInputPerUnit;
     }
 
     public long getOutput() {
