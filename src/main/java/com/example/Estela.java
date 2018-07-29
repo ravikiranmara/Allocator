@@ -2,6 +2,7 @@ package com.example;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.*;
 
 /**
  * Created by wiz on 6/4/18.
@@ -13,14 +14,16 @@ import java.util.Map;
  * . }
  */
 public class Estela {
-    public List<AllocatorCell> getAllocateTable(Topology topology, int maxResources) {
+    public List<AllocatorCell> getAllocateTable(Topology topology, long maxResources) {
         List<AllocatorCell> allocatorTable = new ArrayList<AllocatorCell>();
         List<String> congested = topology.getCongested();
 
         for(String comp : congested) {
             Component component = topology.getComponent(comp);
-            for (int res=1; res<maxResources; res++) {
+            System.out.println("Processing comp : " + comp);
+            for (long res=1; res<=maxResources; res++) {
                 long required = topology.getResourcesRequiredAdditionalProjected(component.getName());
+                System.out.println("Total additional required for head (allowed : " + res + "): " + required);
                 AllocatorCell allocatorCell = new AllocatorCell();
 
                 if (res > required) {
@@ -30,6 +33,7 @@ public class Estela {
 
                 AllocationMap allocationMap =
                         this.getAllocationForSubtree(component, res, topology);
+                allocationMap.dump();
 
                 // set map
                 allocatorCell.setAllocationMap(allocationMap);
@@ -64,13 +68,13 @@ public class Estela {
         return Math.max(0, topology.getProjectedThroughput() - topology.getCurrentThroughput());
     }
 
-    public AllocationMap getAllocationForSubtree(Component component, int rootRes, Topology topology) {
+    public AllocationMap getAllocationForSubtree(Component component, long rootRes, Topology topology) {
         AllocationMap allocationMap = new AllocationMap();
         Queue<Component> queue = new LinkedList<Component>();
         long currentAllocated = component.getCurrent().getAllocated();
 
         // process the root component
-        System.out.println("Calculate allocation for comp : " + component.getName() + ", res : " + rootRes);
+        // System.out.println("Calculate allocation for comp : " + component.getName() + ", res : " + rootRes);
         Map<String, Double> rootChildren = component.getChildren();
         for (Map.Entry<String, Double> child : rootChildren.entrySet()) {
             queue.add(topology.getComponent(child.getKey()));
@@ -82,7 +86,7 @@ public class Estela {
         while (queue.isEmpty() != true) {
             Component comp = queue.remove();
             long compCurrentAllocated = comp.getCurrent().getAllocated();
-            System.out.println("Processing comp : " + comp.getName());
+            // System.out.println("Processing comp : " + comp.getName());
 
             // get all children, add to queue
             Map<String, Double> children = comp.getChildren();
@@ -92,6 +96,7 @@ public class Estela {
 
             // get additional resources required
             long required = topology.getResourcesRequiredProjected(comp.getName());
+            // System.out.println("required for comp : " + required);
             topology.allocateToProjected(comp.getName(), required);
 
             // add resources to allocation map
@@ -248,7 +253,7 @@ public class Estela {
         this.dumpAllocatorTable(allocatorTable);
 
         // get optimal allocation
-        AllocationMap optimalMap = allocator.getOptimalAllocation(allocatorTable, freeResources);
+        AllocationMap optimalMap = this.getOptimalAllocation(allocatorTable, freeResources);
 
         return optimalMap;
     }

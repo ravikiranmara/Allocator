@@ -8,7 +8,6 @@ public class ComponentState {
     private long out;
     private long allocated;
     private long cpuUsed;
-    private long maxInput;
 
     // getter and setter
     public long getIn() {
@@ -41,14 +40,6 @@ public class ComponentState {
 
     public void setCpuUsed(long cpuUsed) {
         this.cpuUsed = cpuUsed;
-    }
-
-    public long getMaxInput() {
-        return maxInput;
-    }
-
-    public void setMaxInputIn(long maxInput) {
-        this.maxInput = maxInput;
     }
 
     public void copy(ComponentState newState) {

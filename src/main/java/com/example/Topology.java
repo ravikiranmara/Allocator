@@ -116,7 +116,7 @@ public class Topology {
             totalInput += ratio * totalOutput;
         }
 
-        // System.out.println("Input from parents of comp - " + name + ":" + totalInput);
+        System.out.println("Input from parents of comp - " + name + ":" + totalInput);
 
         return totalInput;
     }
@@ -126,14 +126,14 @@ public class Topology {
         Component component = this.getComponent(name);
 
         long required = component.getResourcesForInput(input);
-        // System.out.println("Required for projected comp - " + name + ":" + required);
+        System.out.println("Required for projected comp - " + name + " ( " + input + ") :" + required);
         return required;
     }
 
     public long getResourcesRequiredAdditionalProjected(String name) {
         long needed = this.getResourcesRequiredProjected(name);
         long allocated = this.getComponent(name).getCurrent().getAllocated();
-        return (needed - allocated);
+        return (needed < allocated)? 0 : (needed - allocated);
     }
 
     public ComponentState getProjectedForState(String name, long numResources) {
@@ -155,7 +155,7 @@ public class Topology {
         newProjected.setAllocated(numResources);
         newProjected.setCpuUsed(cpu);
 
-        // System.out.println("Input : " + input + ", out : " + newProjected.getOut() + ", resource : " + numResources);
+        System.out.println("Input : " + input + ", out : " + newProjected.getOut() + ", resource : " + numResources);
 
         return newProjected;
     }
@@ -195,9 +195,7 @@ public class Topology {
         this.congested = new ArrayList<String>();
         for (Map.Entry<String, Component> entry : components.entrySet()) {
             Component comp = entry.getValue();
-            long cpuUsed = comp.getCurrent().getCpuUsed();
-            long cpuAllocated = comp.getCurrent().getAllocated() * comp.getCpuPerUnit();
-            if(cpuUsed == cpuAllocated) {
+            if (comp.isCongested()) {
                 this.congested.add(entry.getKey());
             }
         }

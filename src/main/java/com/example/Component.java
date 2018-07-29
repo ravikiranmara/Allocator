@@ -12,7 +12,6 @@ public class Component {
     private String name;
     private long inputPerCpu;
     private Double inputToOutputRatio;
-    private boolean congested;
     private List<String> parents;
     private Map<String, Double> children;
     private ComponentState projected;
@@ -89,23 +88,19 @@ public class Component {
     }
 
     public boolean isCongested() {
-        if (this.getCurrent().getCpuUsed() ==
-            this.getCurrent().getAllocated() * this.getCpuPerUnit())
+        if (this.getCurrent().getAllocated() * this.maxInputPerUnit <=
+                this.getCurrent().getIn())
             return true;
 
         return false;
     }
 
     public boolean isCongestedProjected() {
-        if (this.getProjected().getCpuUsed() ==
-            this.getProjected().getAllocated() * this.getCpuPerUnit())
+        if (this.getProjected().getIn() >=
+            this.getProjected().getAllocated() * this.getMaxInputPerUnit())
             return true;
 
         return false;
-    }
-
-    public void setCongested(boolean congested) {
-        this.congested = congested;
     }
 
     public ComponentState getCurrent() {
@@ -155,7 +150,7 @@ public class Component {
     }
 
     public long getMaxInput(long numResources) {
-        return numResources * this.getInputPerCpu() * this.getCpuPerUnit();
+        return this.maxInputPerUnit * numResources;
     }
 
     public long getNewAllocated() {
@@ -191,11 +186,6 @@ public class Component {
         this.setInputPerCpu((long)Math.ceil(this.current.getIn()/this.current.getCpuUsed()));
         double iorat = (double)(this.current.getOut())/this.current.getIn();
         this.setInputToOutputRatio(iorat);
-        if (this.current.getCpuUsed() == this.current.getAllocated() * this.getCpuPerUnit()) {
-            this.setCongested(true);
-        } else {
-            this.setCongested(false);
-        }
 
         // get parents and children
         this.parents = componentConfig.getParents();
