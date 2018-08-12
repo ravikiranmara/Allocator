@@ -1,0 +1,111 @@
+{
+  "name": "Test6A",
+  "cpuPerUnit": 10,
+  "numUnits": 10,
+  "components": [
+    {
+      "cname": "spout",
+      "allocated": 3,
+      "parents": [
+        {
+          "parent": "null"
+        }
+      ],
+      "input": 3,
+      "output": 23500,
+      "cpuUsed": 1,
+      "maxInputPerUnit": 1,
+      "children": [
+        {
+          "child": "bolt_1",
+          "childRatio": 0.625
+        },
+        {
+          "child": "bolt_2",
+          "childRatio": 0.375
+        }
+      ]
+    },
+    {
+      "cname": "bolt_1",
+      "allocated": 1,
+      "parents": [
+        {
+          "parent": "spout"
+        }
+      ],
+      "input": 6200,
+      "output": 6200,
+      "cpuUsed": 1,
+      "maxInputPerUnit": 6200,
+      "children": [
+        {
+          "child": "bolt_3",
+          "childRatio": 0.75
+        },
+        {
+          "child": "bolt_4",
+          "childRatio": 0.25
+        }
+      ]
+    },
+    {
+      "cname": "bolt_2",
+      "allocated": 1,
+      "parents": [
+        {
+          "parent": "spout"
+        }
+      ],
+      "input": 3800,
+      "output": 3800,
+      "cpuUsed": 1,
+      "maxInputPerUnit": 3800,
+      "children": [
+        {
+          "child": "bolt_5",
+          "childRatio": 1
+        }
+      ]
+    },
+    {
+      "cname": "bolt_3",
+      "allocated": 1,
+      "parents": [
+        {
+          "parent": "bolt_1"
+        }
+      ],
+      "input": 4700,
+      "output": 4700,
+      "cpuUsed": 1,
+      "maxInputPerUnit": 8500
+    },
+    {
+      "cname": "bolt_4",
+      "allocated": 1,
+      "parents": [
+        {
+          "parent": "bolt_1"
+        }
+      ],
+      "input": 1500,
+      "output": 1500,
+      "cpuUsed": 1,
+      "maxInputPerUnit": 1800
+    },
+    {
+      "cname": "bolt_5",
+      "allocated": 1,
+      "parents": [
+        {
+          "parent": "bolt_2"
+        }
+      ],
+      "input": 3700,
+      "output": 3700,
+      "cpuUsed": 1,
+      "maxInputPerUnit": 4600
+    }
+  ]
+}

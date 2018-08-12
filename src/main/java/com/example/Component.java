@@ -157,6 +157,20 @@ public class Component {
         return this.getProjected().getAllocated() - this.getCurrent().getAllocated();
     }
 
+    public boolean isCurrentCongested() {
+        if (this.current.getIn() >= this.getCurrent().getAllocated() * this.getMaxInputPerUnit())
+            return true;
+
+        return false;
+    }
+
+    public boolean isProjectedCongested() {
+        if (this.getProjected().getIn() >= this.getProjected().getAllocated() * this.getMaxInputPerUnit())
+            return true;
+
+        return false;
+    }
+
     private void initialize() {
         this.projected = new ComponentState();
         this.current = new ComponentState();

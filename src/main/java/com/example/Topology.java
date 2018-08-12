@@ -1,9 +1,6 @@
 package com.example;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by wiz on 6/1/18.
@@ -15,7 +12,8 @@ public class Topology {
     List<String> spout;
     List<String> leaves;
     List<String> congested;
-    int currentThroughput;
+    long currentThroughput;
+
 
     public void dump() {
         System.out.println("\n=====================================================================");
@@ -100,23 +98,32 @@ public class Topology {
 
     public long getInputFromParentProjected(String name) {
         Component component = this.getComponent(name);
+        // System.out.println("component - " + component.getName());
 
         // get all parents
         List<String> parents = component.getParents();
-        List<Component> parentcomponents = new ArrayList<Component>();
-        for (String parent : parents) {
-            parentcomponents.add(this.getComponent(parent));
-        }
-
-        // get input from parents
         long totalInput = 0;
-        for (Component parent : parentcomponents) {
-            Double ratio = parent.getChildOutputRatio(name);
-            long totalOutput = parent.getProjected().getOut();
-            totalInput += ratio * totalOutput;
+        if (parents == null || parents.size() == 0) {
+            totalInput = component.getCurrent().getIn() *
+                    component.getProjected().getAllocated();
+        } else {
+            List<Component> parentcomponents = new ArrayList<Component>();
+            for (String parent : parents) {
+                parentcomponents.add(this.getComponent(parent));
+            }
+            // System.out.println("parents size - " + parentcomponents.size());
+
+            // get input from parents
+            for (Component parent : parentcomponents) {
+                // System.out.println("parents - " + parent.getName());
+
+                Double ratio = parent.getChildOutputRatio(name);
+                long totalOutput = parent.getProjected().getOut();
+                totalInput += ratio * totalOutput;
+            }
         }
 
-        System.out.println("Input from parents of comp - " + name + ":" + totalInput);
+        // System.out.println("Input from parents of comp - " + name + ":" + totalInput);
 
         return totalInput;
     }
@@ -126,7 +133,7 @@ public class Topology {
         Component component = this.getComponent(name);
 
         long required = component.getResourcesForInput(input);
-        System.out.println("Required for projected comp - " + name + " ( " + input + ") :" + required);
+        // System.out.println("Required for projected comp - " + name + " ( " + input + ") :" + required);
         return required;
     }
 
@@ -143,7 +150,10 @@ public class Topology {
         // System.out.println("Allocate to projected : " + name  + ":" + numResources);
 
         // get input
-        long parentInput = getInputFromParentProjected(name);
+        long parentInput = current.getIn() * numResources;
+        if (comp.getParents().size() != 0) // spout
+            parentInput = getInputFromParentProjected(name);
+
         long maxInput = comp.getMaxInput(numResources);
         long input = Math.min(maxInput, parentInput);
         long cpu = (long)Math.ceil(input/comp.getInputPerCpu());
@@ -155,7 +165,7 @@ public class Topology {
         newProjected.setAllocated(numResources);
         newProjected.setCpuUsed(cpu);
 
-        System.out.println("Input : " + input + ", out : " + newProjected.getOut() + ", resource : " + numResources);
+        // System.out.println("Input : " + input + ", out : " + newProjected.getOut() + ", resource : " + numResources);
 
         return newProjected;
     }
@@ -172,7 +182,7 @@ public class Topology {
         this.spout = new ArrayList<String>();
         for (Map.Entry<String, Component> entry : components.entrySet()) {
             Component comp = entry.getValue();
-            System.out.println("comp : " + entry.getKey() + comp.getChildren().size());
+            // System.out.println("comp : " + entry.getKey() + comp.getChildren().size());
             if (comp.getParents().size() == 0) {
                 this.spout.add(entry.getKey());
             }
@@ -184,11 +194,11 @@ public class Topology {
         for (Map.Entry<String, Component> entry : components.entrySet()) {
             Component comp = entry.getValue();
             if (comp.getChildren().size() == 0) {
-                System.out.println("Adding leaf : " + comp.getName() + comp.getChildren().size());
+                // System.out.println("Adding leaf : " + comp.getName() + comp.getChildren().size());
                 this.leaves.add(entry.getKey());
             }
         }
-        System.out.println("leaves:-" + this.getLeaves().size());
+        // System.out.println("leaves:-" + this.getLeaves().size());
     }
 
     public void calculateCongested() {
@@ -235,6 +245,37 @@ public class Topology {
         }
 
         return totalOutput;
+    }
+
+    public void propogateAllocation(AllocationMap allocationMap) {
+        List<String> spouts = this.getSpout();
+        Queue<Component> queue = new LinkedList<Component>();
+
+        // this logic is flawed.. :(
+        for (String spout : spouts) {
+            queue.add(this.getComponent(spout));
+        }
+
+        System.out.println("propogate");
+        while (queue.isEmpty() != true) {
+            Component comp = queue.remove();
+
+            // get all child
+            for (Map.Entry<String, Double> child : comp.getChildren().entrySet()) {
+                queue.add(this.getComponent(child.getKey()));
+            }
+
+            // if comp is spout, copy current to projected
+            long allocated = this.getComponent(comp.getName()).getCurrent().getAllocated();
+            allocated += allocationMap.getResourceAllocationForComponent(comp.getName());
+            ComponentState projState = this.getProjectedForState(comp.getName(), allocated);
+            comp.setProjected(projState);
+
+            System.out.println("Projected for comp : " + comp.getName());
+            projState.dump();
+        }
+
+        return;
     }
 
     public void initialize() {

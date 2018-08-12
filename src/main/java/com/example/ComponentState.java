@@ -1,5 +1,7 @@
 package com.example;
 
+import com.sun.xml.internal.ws.api.ComponentsFeature;
+
 /**
  * Created by wiz on 6/1/18.
  */
@@ -54,6 +56,5 @@ public class ComponentState {
         System.out.println("\t allocated : " + this.getAllocated());
         System.out.println("\t in : " + this.getIn());
         System.out.println("\t out : " + this.getOut());
-        System.out.println("\t Cpu used : " + this.getCpuUsed());
     }
 }

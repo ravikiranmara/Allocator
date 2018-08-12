@@ -112,7 +112,7 @@ public class FileParser {
                 }
             }
 
-            System.out.println("Added component:" + componentConfig.getName());
+            // System.out.println("Added component:" + componentConfig.getName());
             topologyConfig.addComponent(componentConfig);
         }
 
@@ -155,7 +155,7 @@ public class FileParser {
 
             // allocated
             int numAllocated = innerObj.get("allocated").getAsInt();
-            System.out.println("allocated"+ numAllocated);
+            System.out.println("allocated: "+ numAllocated);
 
             // input
             int input = innerObj.get("input").getAsInt();

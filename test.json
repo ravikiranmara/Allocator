@@ -1,8 +1,8 @@
 {
-  "name": "Topolojee",
+  "name": "Topolojee2",
   "cpuPerUnit": 10,
   "numUnits": 10,
-  "components": [ 
+  "components": [
     {
       "cname": "spout",
       "allocated": 2,
@@ -13,7 +13,8 @@
       ],
       "input": 100,
       "output": 100,
-      "cpuUsed": 15, 
+      "cpuUsed": 15,
+      "maxInputPerUnit": 50,
       "children": [
         {
           "child": "split",
@@ -31,7 +32,8 @@
       ],
       "input": 250,
       "output": 750,
-      "cpuUsed": 40, 
+      "cpuUsed": 40,
+      "maxInputPerUnit": 50,
       "children": [
         {
           "child": "count",
@@ -49,7 +51,8 @@
       ],
       "input": 250,
       "output": 750,
-      "cpuUsed": 40
+      "cpuUsed": 40,
+      "maxInputPerUnit": 50
     }
   ]
 }

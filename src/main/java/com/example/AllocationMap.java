@@ -65,8 +65,13 @@ public class AllocationMap {
              if (nres == null)
                  nres = 0L;
 
-             System.out.println("Set comp : " + entry.getKey() + ", " + (remres+nres));
+             // System.out.println("Set comp : " + entry.getKey() + ", " + (remres+nres));
              this.setAllocationForComponent(entry.getKey(), remres + nres);
         }
+    }
+
+    public long getResourceAllocationForComponent(String comp) {
+        return (null == this.allocationMap.get(comp))? 0 :
+                this.allocationMap.get(comp);
     }
 }
