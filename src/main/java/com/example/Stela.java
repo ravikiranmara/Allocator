@@ -11,18 +11,21 @@ public class Stela {
     public List<EtpCell> getEtpTable(Topology topology) {
         List<EtpCell> etpTable = new LinkedList<EtpCell>();
 
-        // get congested components
-        List<String> congested = topology.getCongested();
-
         // get projected throughput
         long topologyThrougput = topology.getProjectedThroughput();
 
         // foreach component calculate etp
-        Map<String, Component> components = topology.getComponents();
-        for (Map.Entry<String, Component> entry : components.entrySet()) {
-            Component component = entry.getValue();
+        // Map<String, Component> components = topology.getComponents();
+        List<String> congested = topology.getCongestedProjected();
+        for (String  entry : congested) {
+            Component component = topology.getComponent(entry);
+            if (component.getParents().size() == 0) {
+                // System.out.println("Ignore parent");
+                continue;
+            }
 
             long childThroughput = this.getChildThroughput(topology, component.getName());
+            // System.out.println("Child Throughput " + entry + " : " + childThroughput);
             Double etp = (double)childThroughput/topologyThrougput;
 
             EtpCell etpCell = new EtpCell(component.getName(), etp.doubleValue());
@@ -46,10 +49,10 @@ public class Stela {
                 if(childComponent.isCongestedProjected() == false) {
                     queue.add(child.getKey());
                 }
-
-                if(childComponent.getChildren().size() == 0)
-                    leaves.add(child.getKey());
             }
+
+            if(comp.getChildren().size() == 0)
+                leaves.add(comp.getName());
         }
 
         long childThroughput = 0;
@@ -68,21 +71,33 @@ public class Stela {
     }
 
     public AllocationMap getOptimalAllocation(Topology topology, long freeResources) {
+        System.out.println("Stela : Get Optimal Allocation");
         AllocationMap allocationMap = new AllocationMap();
 
-        // get allocator table
-        List<EtpCell> etpTable = this.getEtpTable(topology);
-        this.dumpEtpTable(etpTable);
+        for (int i=0; i<freeResources; i++) {
+            // get allocator table
+            List<EtpCell> etpTable = this.getEtpTable(topology);
+            // this.dumpEtpTable(etpTable);
 
-        System.out.println("~~~~~~~~   Sorted  ~~~~~~~~~~~");
+            // System.out.println("~~~~~~~~   Highest ETP ~~~~~~~~~~~");
 
-        // sort table to get the roi sorting
-        // Collections.sort(allocatorTable);
-        // Collections.reverse(allocatorTable);
-        // this.dumpAllocatorTable(allocatorTable);
+            // sort table to get the roi sorting
+            if (etpTable.size() ==  0) {
+                etpTable.add(new EtpCell(topology.getSpout().get(0), 1.0));
+            }
+            EtpCell highCell = etpTable.get(0);
+            for (EtpCell cell : etpTable) {
+                if (highCell.getEtp() < cell.getEtp()) {
+                    highCell = cell;
+                }
+            }
 
-        // get optimal allocation
-        // AllocationMap optimalMap = this.getOptimalAllocationMap(allocatorTable, freeResources);
+            // highCell.dump();
+
+            allocationMap.addAllocationForComponent(highCell.getComponent(), 1);
+
+            topology.propogateAllocation(allocationMap);
+        }
 
         return allocationMap;
     }

@@ -27,16 +27,20 @@ public class Allocator {
             Topology topology = new Topology(topologyConfig);
             // topology.dump();
 
+
+            System.out.println("============    EXECUTE FOR ESTELA     ==================");
             // get allocator map for estela
             Estela estela = new Estela();
 
-            System.out.println("Get Optimal Map for freeResources : " + freeResources);
+            // System.out.println("Get Optimal Map for freeResources : " + freeResources);
+            System.out.println("congested Count : " + topology.getCongestedProjected().size());
             AllocationMap optimalMap = estela.getOptimalAllocation(topology, freeResources);
             System.out.println("Estela : dump optimal map");
             optimalMap.dump();
             topology.propogateAllocation(optimalMap);
             long optincrease = topology.getProjectedThroughput() - topology.getCurrentThroughput();
             System.out.println("projected increase in throughput (optimal) : " + optincrease);
+            System.out.println("congested Count : " + topology.getCongestedProjected().size());
 
             long remainingResources = freeResources-optimalMap.getTotalAllocatedAdditionalResources();
             if (remainingResources > 0) {
@@ -51,9 +55,23 @@ public class Allocator {
             topology.propogateAllocation(optimalMap);
             long increase = topology.getProjectedThroughput() - topology.getCurrentThroughput();
             System.out.println("projected increase in throughput (optimal + greedy): " + increase);
+            System.out.println("Congested Count : " + topology.getCongestedProjected().size());
+            for (String cong : topology.getCongestedProjected()) System.out.println(cong);
 
+
+            System.out.println("============    EXECUTE FOR STELA     ==================");
+
+            topology.refreshComponentProjected();
             // get allocator map for Stela
+            Stela stela = new Stela();
+            AllocationMap optimalStelaMap = stela.getOptimalAllocation(topology, freeResources);
+            optimalStelaMap.dump();
 
+            topology.propogateAllocation(optimalStelaMap);
+            long stelaIncrease = topology.getProjectedThroughput() - topology.getCurrentThroughput();
+            System.out.println("projected increase in throughput : " + stelaIncrease);
+            System.out.println("Congested Count : " + topology.getCongestedProjected().size());
+            for (String cong : topology.getCongestedProjected()) System.out.println(cong);
 
         } catch (IOException ex) {
             System.out.println("IO exception while reading filename");

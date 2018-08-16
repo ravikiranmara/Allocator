@@ -12,6 +12,7 @@ public class Topology {
     List<String> spout;
     List<String> leaves;
     List<String> congested;
+    List<String> congestedProjected;
     long currentThroughput;
 
 
@@ -90,6 +91,11 @@ public class Topology {
 
     public void setCongested(List<String> congested) {
         this.congested = congested;
+    }
+
+    public List<String> getCongestedProjected() {
+        this.calculateCongestedProjected();
+        return congestedProjected;
     }
 
     public Component getComponent(String name) {
@@ -211,6 +217,17 @@ public class Topology {
         }
     }
 
+    public void calculateCongestedProjected() {
+        this.congestedProjected = new ArrayList<String>();
+        for (Map.Entry<String, Component> entry : components.entrySet()) {
+            Component comp = entry.getValue();
+            if (comp.isCongestedProjected()) {
+                this.congestedProjected.add(entry.getKey());
+            }
+        }
+    }
+
+
     public void cleanProjected() {
         for (Map.Entry<String, Component> entry : components.entrySet()) {
             Component comp = entry.getValue();
@@ -256,7 +273,7 @@ public class Topology {
             queue.add(this.getComponent(spout));
         }
 
-        System.out.println("propogate");
+        // System.out.println("propogate");
         while (queue.isEmpty() != true) {
             Component comp = queue.remove();
 
@@ -271,8 +288,8 @@ public class Topology {
             ComponentState projState = this.getProjectedForState(comp.getName(), allocated);
             comp.setProjected(projState);
 
-            System.out.println("Projected for comp : " + comp.getName());
-            projState.dump();
+            // System.out.println("Projected for comp : " + comp.getName());
+            // projState.dump();
         }
 
         return;
@@ -283,6 +300,14 @@ public class Topology {
         spout = new ArrayList<String>();
         leaves = new ArrayList<String>();
         congested = new ArrayList<String>();
+        congestedProjected = new ArrayList<String>();
+    }
+
+    void refreshComponentProjected() {
+        for (Map.Entry<String, Component> entry : this.getComponents().entrySet()) {
+            Component comp = entry.getValue();
+            comp.setProjected(comp.getCurrent());
+        }
     }
 
     // constructor

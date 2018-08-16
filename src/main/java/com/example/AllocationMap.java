@@ -25,6 +25,14 @@ public class AllocationMap {
         this.allocationMap.put(component, value);
     }
 
+    public void addAllocationForComponent(String component, long value) {
+        if(null == this.allocationMap.get(component)) {
+            this.setAllocationForComponent(component, value);
+            return;
+        }
+        this.setAllocationForComponent(component, this.allocationMap.get(component) + value);
+    }
+
     public Map<String, Long> getAllocationMap() {
         return this.allocationMap;
     }
