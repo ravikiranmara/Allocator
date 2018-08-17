@@ -17,7 +17,7 @@ public class Allocator {
             long freeResources = in.nextLong();
 
             // Read file
-            String filePath = ("//home//wiz//workspace//GIT//Allocator//test6A_case1.json");
+            String filePath = ("//home//wiz//workspace//GIT//Allocator//test9A_case1.json");
             // String filePath = new String("//home//wiz//junk//test11.json");
             FileParser fileParser = new FileParser(filePath);
 

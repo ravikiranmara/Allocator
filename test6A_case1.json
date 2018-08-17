@@ -18,11 +18,11 @@
       "children": [
         {
           "child": "bolt_1",
-          "childRatio": 0.55
+          "childRatio": 0.625
         },
         {
           "child": "bolt_2",
-          "childRatio": 0.45
+          "childRatio": 0.375
         }
       ]
     },
@@ -34,10 +34,10 @@
           "parent": "spout"
         }
       ],
-      "input": 5800,
-      "output": 5800,
+      "input": 6200,
+      "output": 6200,
       "cpuUsed": 1,
-      "maxInputPerUnit": 5800,
+      "maxInputPerUnit": 6200,
       "children": [
         {
           "child": "bolt_3",

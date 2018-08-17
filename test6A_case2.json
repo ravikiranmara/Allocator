@@ -18,11 +18,11 @@
       "children": [
         {
           "child": "bolt_1",
-          "childRatio": 0.55
+          "childRatio": 0.375
         },
         {
           "child": "bolt_2",
-          "childRatio": 0.45
+          "childRatio": 0.625
         }
       ]
     },
@@ -34,18 +34,18 @@
           "parent": "spout"
         }
       ],
-      "input": 5800,
-      "output": 5800,
+      "input": 6200,
+      "output": 6200,
       "cpuUsed": 1,
-      "maxInputPerUnit": 5800,
+      "maxInputPerUnit": 6200,
       "children": [
         {
           "child": "bolt_3",
-          "childRatio": 0.75
+          "childRatio": 0.25
         },
         {
           "child": "bolt_4",
-          "childRatio": 0.25
+          "childRatio": 0.75
         }
       ]
     },
@@ -76,8 +76,8 @@
           "parent": "bolt_1"
         }
       ],
-      "input": 4700,
-      "output": 4700,
+      "input": 1550,
+      "output": 1550,
       "cpuUsed": 1,
       "maxInputPerUnit": 8500
     },
@@ -89,8 +89,8 @@
           "parent": "bolt_1"
         }
       ],
-      "input": 1500,
-      "output": 1500,
+      "input": 1800,
+      "output": 1800,
       "cpuUsed": 1,
       "maxInputPerUnit": 1800
     },
