@@ -104,17 +104,18 @@ public class Topology {
 
     public long getInputFromParentProjected(String name) {
         Component component = this.getComponent(name);
-        // System.out.println("component - " + component.getName());
+        // System.out.println("Input from parent component - " + component.getName());
 
         // get all parents
         List<String> parents = component.getParents();
         long totalInput = 0;
-        if (parents == null || parents.size() == 0) {
+        if (parents.size() == 1 && parents.get(0).equalsIgnoreCase("null")) {
             totalInput = component.getCurrent().getIn() *
                     component.getProjected().getAllocated();
         } else {
             List<Component> parentcomponents = new ArrayList<Component>();
             for (String parent : parents) {
+                // System.out.println("Add parent : " + parents);
                 parentcomponents.add(this.getComponent(parent));
             }
             // System.out.println("parents size - " + parentcomponents.size());
@@ -217,6 +218,45 @@ public class Topology {
         }
     }
 
+    public List<String> calculateCongested(List<String> anchors) {
+        List<String> congested = new ArrayList<String>();
+
+        Queue<Component> queue = new LinkedList<Component>();
+        for (String comps : anchors) {
+            queue.add(this.components.get(comps));
+        }
+
+        while (queue.isEmpty() != true) {
+            Component comp = queue.remove();
+
+            if (comp.isCongested()) {
+                this.congested.add(comp.getName());
+            }
+        }
+
+        return congested;
+    }
+
+    public List<String> calculateCongestedProjected(List<String> anchors) {
+        List<String> congested = new ArrayList<String>();
+
+        Queue<Component> queue = new LinkedList<Component>();
+        for (String comps : anchors) {
+            queue.add(this.components.get(comps));
+        }
+
+        while (queue.isEmpty() != true) {
+            Component comp = queue.remove();
+
+            if (comp.isCongestedProjected()) {
+                this.congested.add(comp.getName());
+            }
+        }
+
+        return congested;
+    }
+
+
     public void calculateCongestedProjected() {
         this.congestedProjected = new ArrayList<String>();
         for (Map.Entry<String, Component> entry : components.entrySet()) {
@@ -288,7 +328,7 @@ public class Topology {
             ComponentState projState = this.getProjectedForState(comp.getName(), allocated);
             comp.setProjected(projState);
 
-            // System.out.println("Projected for comp : " + comp.getName());
+            // System.out.println("Projected for comp : " + comp.getName() + " " + comp.getProjected().getOut());
             // projState.dump();
         }
 
@@ -309,6 +349,36 @@ public class Topology {
             comp.setProjected(comp.getCurrent());
         }
     }
+
+    Topology (List<Component> topology) {
+        this.initialize();
+
+        for (Component comp : topology) {
+            Component c = new Component(comp);
+            this.components.put(c.getName(), c);
+        }
+
+        // now initialize supporting data
+        this.calculateSpouts();
+        this.calculateLeaves();
+        this.calculateCongested();
+    }
+
+    Topology (Topology topology) {
+        this.initialize();
+
+        for (Map.Entry<String, Component> entry : topology.getComponents().entrySet()) {
+            Component comp = new Component(entry.getValue());
+            this.components.put(comp.getName(), comp);
+
+        }
+
+        // now initialize supporting data
+        this.calculateSpouts();
+        this.calculateLeaves();
+        this.calculateCongested();
+    }
+
 
     // constructor
     Topology(TopologyConfig topologyConfig) {

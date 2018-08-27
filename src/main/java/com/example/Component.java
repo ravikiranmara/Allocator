@@ -179,6 +179,32 @@ public class Component {
     }
 
     // constructor
+
+    public Component(Component component) {
+        this.initialize();
+        this.name = component.getName();
+        this.cpuPerUnit = component.getCpuPerUnit();
+        this.maxInputPerUnit = component.getMaxInputPerUnit();
+
+        this.current.setIn(component.getCurrent().getIn());
+        this.current.setOut(component.getCurrent().getOut());
+        this.current.setCpuUsed(component.getCurrent().getCpuUsed());
+        this.current.setAllocated(component.getCurrent().getAllocated());
+
+        this.projected.setIn(component.getCurrent().getIn());
+        this.projected.setOut(component.getCurrent().getOut());
+        this.projected.setCpuUsed(component.getCurrent().getCpuUsed());
+        this.projected.setAllocated(component.getCurrent().getAllocated());
+
+        // calculate related stats
+        this.setInputPerCpu((long)Math.ceil(this.current.getIn()/this.current.getCpuUsed()));
+        double iorat = (double)(this.current.getOut())/this.current.getIn();
+        this.setInputToOutputRatio(iorat);
+
+        this.setParents(component.getParents());
+        this.setChildren(component.getChildren());
+    }
+
     public Component (ComponentConfig componentConfig) {
         this.initialize();
         this.setName(componentConfig.getName());
