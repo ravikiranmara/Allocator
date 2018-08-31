@@ -9,8 +9,17 @@ public class AllocatorCell implements Comparable<AllocatorCell> {
     private AllocationMap allocationMap;
     private double roi;
     private String headComponent;
+    private long congestedBranches;
 
     // getter and setters
+    public long getCongestedBranches() {
+        return this.congestedBranches;
+    }
+
+    public void setCongestedBranches(long congestedBranches) {
+        this.congestedBranches = congestedBranches;
+    }
+
     public long getResourceAllocated() {
         return resourceAllocated;
     }
@@ -52,6 +61,14 @@ public class AllocatorCell implements Comparable<AllocatorCell> {
     }
 
     public int compareTo(AllocatorCell allocatorCell) {
+        // we might not need to consider this as separate case
+        if (this.getCongestedBranches() > allocatorCell.getCongestedBranches()) {
+            return 1;
+        } else if (this.getCongestedBranches() < allocatorCell.getCongestedBranches()) {
+            return -1;
+        }
+        // else if congested branches is same
+
         if(this.getRoi() > allocatorCell.getRoi()) {
             return 1;
         } else if (this.getRoi() < allocatorCell.getRoi()) {

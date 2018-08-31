@@ -17,7 +17,7 @@ public class Allocator {
             long freeResources = in.nextLong();
 
             // Read file
-            String filePath = ("//home//wiz//workspace//GIT//Allocator//test6A_case1.json");
+            String filePath = ("//home//wiz//git//Allocator//test9A.json");
             // String filePath = new String("//home//wiz//junk//test11.json");
             FileParser fileParser = new FileParser(filePath);
 
@@ -27,14 +27,10 @@ public class Allocator {
             Topology topology = new Topology(topologyConfig);
             // topology.dump();
 
-
-
             System.out.println("============    EXECUTE FOR ESTELA     ==================");
-            // get allocator map for estela
-            Estela estela = new Estela();
 
             // System.out.println("Get Optimal Map for freeResources : " + freeResources);
-            System.out.println("congested Count : " + topology.getCongestedProjected().size());
+            System.out.println("Initial Congested Count : " + topology.getCongestedProjected().size());
 
             Topology sendTopology = new Topology(topology);
             // topology.dump();
@@ -44,12 +40,12 @@ public class Allocator {
             topology.propogateAllocation(optimalMap);
             long optincrease = topology.getProjectedThroughput() - topology.getCurrentThroughput();
             System.out.println("projected increase in throughput (optimal) : " + optincrease);
-            System.out.println("congested Count : " + topology.getCongestedProjected().size());
+            System.out.println("Congested Count : " + topology.getCongestedProjected().size());
             for (String cong : topology.getCongestedProjected()) System.out.println(cong);
 
             System.out.println("============    EXECUTE FOR STELA     ==================");
 
-            topology.refreshComponentProjected();
+            sendTopology = new Topology(topology);
             // get allocator map for Stela
             Stela stela = new Stela();
             topology.refreshComponentProjected();
@@ -67,11 +63,11 @@ public class Allocator {
         }
     }
 
-    public static AllocationMap getEstelaAllocation(Topology oldTopology, long freeResources) {
+    public static AllocationMap getEstelaAllocation(Topology topology, long freeResources) {
         // get allocator map for estela
         Estela estela = new Estela();
         AllocationMap optimalMap = new AllocationMap();
-        Topology topology = new Topology(oldTopology);
+        // Topology topology = new Topology(oldTopology);
 
         // System.out.println("Get Optimal Map for freeResources : " + freeResources);
         System.out.println("congested Count : " + topology.getCongestedProjected().size());
@@ -146,6 +142,7 @@ public class Allocator {
             topology.propogateAllocation(optimalMap);
         }
 
+        /*
         optimalMap.dump();
 
         // print stats for final map
@@ -154,6 +151,7 @@ public class Allocator {
         System.out.println("projected increase in throughput (optimal + greedy): " + increase);
         System.out.println("Congested Count : " + topology.getCongestedProjected().size());
         for (String cong : topology.getCongestedProjected()) System.out.println(cong);
+        */
 
         return optimalMap;
     }

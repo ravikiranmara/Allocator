@@ -82,4 +82,8 @@ public class AllocationMap {
         return (null == this.allocationMap.get(comp))? 0 :
                 this.allocationMap.get(comp);
     }
+
+    public long getComponentCount() {
+        return this.allocationMap.size();
+    }
 }

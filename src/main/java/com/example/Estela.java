@@ -31,6 +31,11 @@ public class Estela {
         return this.usedAllocation;
     }
 
+    // count of components, that have resources allocated to it, -1 for head
+    public long getCongestionCount(AllocationMap allocationMap) {
+        return allocationMap.getComponentCount() - 1;
+    }
+
     public List<AllocatorCell> calculateAllocateTable(Topology topology, long maxResources) {
         List<AllocatorCell> allocatorTable = new ArrayList<AllocatorCell>();
 
@@ -41,19 +46,37 @@ public class Estela {
         for(String comp : congested) {
             Component component = topology.getComponent(comp);
             // System.out.println("Processing comp : " + comp);
+            long headDecongest = topology.getResourcesRequiredAdditionalProjected(comp);
+
             for (long res=1; res<=maxResources; res++) {
                 long required = topology.getResourcesRequiredAdditionalProjected(component.getName());
                 // System.out.println("Total additional required for head (allowed : " + res + "): " + required);
                 AllocatorCell allocatorCell = new AllocatorCell();
 
-                if (res > required) {
-                    // System.out.println("skipping : " + comp + ":" + res);
-                    break;
-                }
-
+                // get allocation map
                 AllocationMap allocationMap =
                         this.getAllocationForSubtree(component, res, topology);
-                // allocationMap.dump();
+
+                if (res > required) {
+                    // The idea is to look for allocation such that maximum of one
+                    // component is congested downstream. This in effect would lead to
+                    // propogating the congestion downstream, while increasing throughput.
+                    // but there is no easy efficient way to do this. The choice to decide
+                    // which of the branch is allowed to get congested is again a combinatorial
+                    // problem. Topology sorting can be used to alleviate a lot of the
+                    // complexity, but it is still tedious. This will remain to be one
+                    // of the shortcomings of the algorithm.
+                    // we can do one crude simple case, where we check the number of
+                    // congestion caused, and if it is 1, then allow allocation.
+
+                    long allocCount = this.getCongestionCount(allocationMap);
+                    if (headDecongest < allocationMap.getResourceAllocationForComponent(comp) ||
+                            allocCount > 1) {
+                        // System.out.println("skipping : " + comp + ":" + res);
+                        break;
+                    }
+                }
+
 
                 // set map
                 allocatorCell.setAllocationMap(allocationMap);
@@ -286,7 +309,7 @@ public class Estela {
 
         // get allocator table
         allocatorTable = this.calculateAllocateTable(topology, freeResources);
-        this.dumpAllocatorTable(allocatorTable);
+        // this.dumpAllocatorTable(allocatorTable);
 
         // System.out.println("~~~~~~~~   Sorted  ~~~~~~~~~~~");
 
