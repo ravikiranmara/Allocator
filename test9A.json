@@ -38,10 +38,10 @@
           "parent": "spout"
         }
       ],
-      "input": 4900,
-      "output": 4900,
+      "input": 4700,
+      "output": 4700,
       "cpuUsed": 1,
-      "maxInputPerUnit": 4900,
+      "maxInputPerUnit": 4700,
       "children": [
         {
           "child": "bolt_4",
@@ -107,10 +107,10 @@
           "parent": "bolt_1"
         }
       ],
-      "input": 2700,
-      "output": 2700,
+      "input": 2720,
+      "output": 2720,
       "cpuUsed": 1,
-      "maxInputPerUnit": 2700
+      "maxInputPerUnit": 2800
     },
     {
       "cname": "bolt_5",
@@ -120,8 +120,8 @@
           "parent": "bolt_1"
         }
       ],
-      "input": 2100,
-      "output": 2100,
+      "input": 1880,
+      "output": 1880,
       "cpuUsed": 1,
       "maxInputPerUnit": 2100
     },
@@ -133,8 +133,8 @@
           "parent": "bolt_2"
         }
       ],
-      "input": 2700,
-      "output": 2700,
+      "input": 2100,
+      "output": 2100,
       "cpuUsed": 1,
       "maxInputPerUnit": 2700
     },
@@ -159,8 +159,8 @@
           "parent": "bolt_3"
         }
       ],
-      "input": 1480,
-      "output": 1480,
+      "input": 1500,
+      "output": 1500,
       "cpuUsed": 1,
       "maxInputPerUnit": 3800
     },
@@ -172,8 +172,8 @@
           "parent": "bolt_3"
         }
       ],
-      "input": 980,
-      "output": 980,
+      "input": 1000,
+      "output": 1000,
       "cpuUsed": 1,
       "maxInputPerUnit": 3600
     }
