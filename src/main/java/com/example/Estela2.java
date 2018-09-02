@@ -1,16 +1,10 @@
 package com.example;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.*;
 
-/**
- * Created by wiz on 6/4/18.
- * . Get list of congested components
- * . foreach congested component {
- * .     increasingly allocate a resource
- * .     get allocation for subtree
- * .     calculate throughput increase
- * . }
- */
+
 public class Estela2 {
     List<AllocatorCell> allocatorTable;
     List<AllocatorCell> usedAllocation;
@@ -21,29 +15,74 @@ public class Estela2 {
         usedAllocation = new LinkedList<AllocatorCell>();
     }
 
-    public List<AllocatorCell> getAllocateTable(Topology topology, long maxResources, List<String> spouts) {
+    // getter and setter
+    public List<AllocatorCell> getAllocatorTable() {
+        return this.allocatorTable;
+    }
+
+    public List<AllocatorCell> getUsedAAllocation() {
+        return this.usedAllocation;
+    }
+
+    // count of components, that have resources allocated to it, -1 for head
+    public long getCongestionCount(AllocationMap allocationMap) {
+        return allocationMap.getComponentCount() - 1;
+    }
+
+    public void dumpAllocatorTable(List<AllocatorCell> allocatorTable) {
+        for (AllocatorCell allocatorCell : allocatorTable) {
+            allocatorCell.dump();
+        }
+    }
+
+    public List<AllocatorCell> calculateAllocateTable(Topology topology, long maxResources) {
         List<AllocatorCell> allocatorTable = new ArrayList<AllocatorCell>();
 
-        List<String> congested = topology.getCongested();
-        System.out.println("congested components : " + congested.size());
-        // for (String cong : congested) System.out.println(cong);
+        List<String> congested = topology.getCongestedProjected();
+        System.out.println("calculateAllocateTable::congested components : " + congested.size());
+        for (String cong : congested) System.out.println(cong);
 
-        for (String comp : congested) {
+        for(String comp : congested) {
             Component component = topology.getComponent(comp);
-            // System.out.println("Processing comp : " + comp);
-            for (long res = 1; res <= maxResources; res++) {
-                long required = topology.getResourcesRequiredAdditionalProjected(component.getName());
-                // System.out.println("Total additional required for head (allowed : " + res + "): " + required);
+            System.out.println("calculateAllocateTable::Processing comp : " + comp);
+            long headDecongest = topology.getResourcesRequiredAdditionalProjected(comp);
+
+            // res => to be allocated to head. res-maxResources are allocated to rest of the body
+            for (long res=1; res<=maxResources; res++) {
                 AllocatorCell allocatorCell = new AllocatorCell();
 
-                if (res > required) {
-                    // System.out.println("skipping : " + comp + ":" + res);
+                // we have completely decongested head. Adding additional resources lead to no gain
+                // break with empty map
+                if (res > headDecongest) {
                     break;
                 }
 
+                // get allocation map
                 AllocationMap allocationMap =
                         this.getAllocationForSubtree(component, res, topology);
-                // allocationMap.dump();
+                long required = allocationMap.getTotalAllocatedAdditionalResources();
+
+                // not enough resources to decongest subtree
+                if (maxResources > required) {
+                    // The idea is to look for allocation such that maximum of one
+                    // component is congested downstream. This in effect would lead to
+                    // propogating the congestion downstream, while increasing throughput.
+                    // but there is no easy efficient way to do this. The choice to decide
+                    // which of the branch is allowed to get congested is again a combinatorial
+                    // problem. Topology sorting can be used to alleviate a lot of the
+                    // complexity, but it is still tedious. This will remain to be one
+                    // of the shortcomings of the algorithm.
+                    // we can do one crude simple case, where we check the number of
+                    // congestion caused, and if it is 1, then allow allocation.
+
+                    // count of components, that have resources allocated to it, -1 for head
+                    long allocCount = this.getCongestionCount(allocationMap) - 1;
+                    if (headDecongest < allocationMap.getResourceAllocationForComponent(comp) ||
+                            allocCount > 1) {
+                        // System.out.println("skipping : " + comp + ":" + res);
+                        // break;
+                    }
+                }
 
                 // set map
                 allocatorCell.setAllocationMap(allocationMap);
@@ -59,8 +98,8 @@ public class Estela2 {
                 // head resources - does this matter?
 
                 // set roi
-                if (allocatedResources != 0)
-                    allocatorCell.setRoi((double) throughputIncrease / allocatedResources);
+                if(allocatedResources != 0)
+                    allocatorCell.setRoi((double)throughputIncrease/allocatedResources);
                 else allocatorCell.setRoi(0);
 
                 // head component
@@ -84,7 +123,7 @@ public class Estela2 {
         long currentAllocated = component.getCurrent().getAllocated();
 
         // process the root component
-        // System.out.println("Calculate allocation for comp : " + component.getName() + ", res : " + rootRes);
+        System.out.println("Calculate allocation for comp : " + component.getName() + ", res : " + rootRes);
         Map<String, Double> rootChildren = component.getChildren();
         for (Map.Entry<String, Double> child : rootChildren.entrySet()) {
             queue.add(topology.getComponent(child.getKey()));
@@ -92,11 +131,11 @@ public class Estela2 {
         topology.allocateToProjected(component.getName(), currentAllocated + rootRes);
         allocationMap.setAllocationForComponent(component.getName(), rootRes);
 
-        // walk the queue
+        // walk the queue.
         while (queue.isEmpty() != true) {
             Component comp = queue.remove();
             long compCurrentAllocated = comp.getCurrent().getAllocated();
-            // System.out.println("Processing comp : " + comp.getName());
+            System.out.println("Queue Processing comp : " + comp.getName());
 
             // get all children, add to queue
             Map<String, Double> children = comp.getChildren();
@@ -104,7 +143,9 @@ public class Estela2 {
                 queue.add(topology.getComponent(child.getKey()));
             }
 
-            // get additional resources required
+            // get additional resources required. could run into trouble if
+            // all of the parents are not updated to new projected. BFS should
+            // be safe enough for our cases
             long required = topology.getResourcesRequiredProjected(comp.getName());
             // System.out.println("required for comp : " + required);
             topology.allocateToProjected(comp.getName(), required);
@@ -121,7 +162,7 @@ public class Estela2 {
         List<String> overlap = new ArrayList<String>();
 
         // head is a special case
-        if (currentAllocation.get(headComp) != null) {
+        if(currentAllocation.get(headComp) != null) {
             // System.out.println(currentAllocation.get(headComp).getAllocationMap().get(headComp).longValue() + "?" +
             //         testMap.getAllocationMap().get(headComp).longValue());
             if (currentAllocation.get(headComp).getAllocationMap().get(headComp).longValue() <
@@ -146,7 +187,7 @@ public class Estela2 {
 
         for (Map.Entry<String, Long> componentMap : testMap.getAllocationMap().entrySet()) {
             String component = componentMap.getKey();
-            if (currentAllocation.get(component) != null)
+            if(currentAllocation.get(component) != null)
                 overlap.add(component);
         }
 
@@ -154,7 +195,7 @@ public class Estela2 {
     }
 
     // use the stored current optimal allocation
-    public List<AllocatorCell> getUsedAllocation(AllocationMap optimalMap) {
+    public List<AllocatorCell> calculateUsedAllocation(AllocationMap optimalMap) {
         List<AllocatorCell> usedAllocation = new ArrayList<AllocatorCell>();
         usedAllocation = new ArrayList<AllocatorCell>();
 
@@ -164,7 +205,7 @@ public class Estela2 {
             // + optimalMap.getResourceAllocationForComponent(head));
 
             // check if the num of resources allocated is <= current
-            if (optimalMap.getResourceAllocationForComponent(head) >=
+            if(optimalMap.getResourceAllocationForComponent(head) >=
                     cell.getAllocationMap().getResourceAllocationForComponent(head))
                 usedAllocation.add(cell);
         }
@@ -180,11 +221,11 @@ public class Estela2 {
 
         while (freeResources > 0) {
             tableptr++;
-            // System.out.println("-------------------- Get Optimal Allocation ---------------------");
-            // System.out.println("System resources : " + freeResources + "table Ptr : " + tableptr);
+            System.out.println("getOptimalAllocationMap::-------------------- Get Optimal Allocation ---------------------");
+            System.out.println("getOptimalAllocationMap::System resources : " + freeResources + "table Ptr : " + tableptr);
 
             // check if we are at the end of the table
-            if (tableptr >= maxtablePtr) {
+            if(tableptr >= maxtablePtr) {
                 // System.out.println("Exit end of table : " + tableptr + ":" + maxtablePtr);
                 break;
             }
@@ -193,17 +234,16 @@ public class Estela2 {
             AllocatorCell addCell = allocatorTable.get(tableptr);
             AllocationMap addMap = addCell.getAllocationMap();
             String addComp = addCell.getHeadComponent();
-            // System.out.println("** Consider allocation **");
-            // addMap.dump();
+            System.out.println("getOptimalAllocationMap::getOptimalAllocationMap::** Consider allocation **");
+            addMap.dump();
 
-            if (currentAllocation.get(addComp) != null) {
+            if(currentAllocation.get(addComp) != null) {
                 if (currentAllocation.get(addComp).getAllocationMap().get(addComp).longValue() >=
                         addMap.getAllocationMap().get(addComp).longValue()) {
                     // System.out.println("head case : continue to next entry");
                     continue;
                 }
             }
-
 
             List<String> overlap = this.getOverlapping(currentAllocation, addMap, addComp);
             if (null == overlap) {
@@ -227,7 +267,7 @@ public class Estela2 {
 
             // check if we have enough resources
             int freeable = 0;
-            if (allocList.size() > 0) {
+            if(allocList.size() > 0) {
                 for (AllocationMap alloc : allocList) {
                     // alloc.dump();
                     freeable += alloc.getTotalAllocatedAdditionalResources();
@@ -256,105 +296,46 @@ public class Estela2 {
             currentAllocation.put(addComp, addMap);
             usedAllocation.add(addCell);
 
-            // System.out.println("current optimal allocation : ");
-            // optimalMap.dump();
+            System.out.println("current optimal allocation : ");
+            optimalMap.dump();
 
             // adjust the available resources after allocation
             freeResources = totalFreeResources - addMap.getTotalAllocatedAdditionalResources();
         }
 
-        this.currentOptimal = optimalMap;
         return optimalMap;
     }
 
-    public void dumpAllocatorTable(List<AllocatorCell> allocatorTable) {
-        for (AllocatorCell allocatorCell : allocatorTable) {
-            allocatorCell.dump();
-        }
-    }
-
-    public AllocationMap getOptimalAllocation(Topology topology, long freeResources, List<String> spouts) {
+    public AllocationMap getOptimalAllocation(Topology topology, long freeResources) {
 
         // get allocator table
-        allocatorTable = this.getAllocateTable(topology, freeResources, spouts);
+        allocatorTable = this.calculateAllocateTable(topology, freeResources);
         // this.dumpAllocatorTable(allocatorTable);
 
-        // System.out.println("~~~~~~~~   Sorted  ~~~~~~~~~~~");
+        System.out.println("getOptimalAllocation::~~~~~~~~   Sorted  ~~~~~~~~~~~");
 
         // sort table to get the roi sorting
         Collections.sort(allocatorTable);
         Collections.reverse(allocatorTable);
-        // this.dumpAllocatorTable(allocatorTable);
+        this.dumpAllocatorTable(allocatorTable);
 
         // get optimal allocation
         AllocationMap optimalMap = this.getOptimalAllocationMap(allocatorTable, freeResources);
 
-        // System.out.println("all consideration");
-        // for (AllocatorCell cell : allocatorTable) cell.dump();
+//        if (optimalMap.getTotalAllocatedAdditionalResources() == 0) {
+//            optimalMap.addAllocationForComponent(topology.getSpout().get(0), 1);
+//        }
 
-        this.currentOptimal = optimalMap;
+        System.out.println("getOptimalAllocation::all consideration");
+        for (AllocatorCell cell : allocatorTable) cell.dump();
+
+        this.currentOptimal = new AllocationMap(optimalMap);
         return optimalMap;
     }
 
-    public AllocationMap getGreedyAllocation(Topology topology, long freeResources, AllocationMap currentOptimal) {
-        usedAllocation = this.getUsedAllocation(this.currentOptimal);
-        allocatorTable.removeAll(usedAllocation);
+    public AllocationMap getGreedyAllocation(Topology topology, long freeResources) {
+        AllocationMap allocationMap = new AllocationMap();
 
-        if(allocatorTable.isEmpty())
-            return new AllocationMap();
-
-        // System.out.println("used consideration");
-        // for (AllocatorCell cell : usedAllocation) cell.dump();
-
-        // System.out.println("greedy consideration");
-        // for (AllocatorCell cell : allocatorTable) cell.dump();
-
-        // System.out.println("====================================================");
-
-        // get map with lowest req resources and highest roi
-        AllocatorCell lowNumCell = allocatorTable.get(0);
-        for (AllocatorCell cell : allocatorTable) {
-            if(cell.getResourceAllocated() < lowNumCell.getResourceAllocated())
-                lowNumCell = cell;
-        }
-
-        AllocatorCell lowCell = allocatorTable.get(0);
-        for (AllocatorCell rcell : allocatorTable) {
-            if (rcell.getResourceAllocated() == lowNumCell.getResourceAllocated())
-                if(rcell.getRoi() < lowCell.getRoi())
-                    lowCell = rcell;
-        }
-
-        // lowCell.dump();
-        // allocate resources
-        String headcomp = lowCell.getHeadComponent();
-        AllocationMap oldmap = lowCell.getAllocationMap();
-        AllocationMap newMap = new AllocationMap();
-
-        Queue<Component> queue = new LinkedList<Component>();
-        queue.add(topology.getComponent(headcomp));
-
-        // bfs traversal. alloc as much as possible
-        // alternate is to dfs and allocate for a branch
-        while (queue.isEmpty() != true) {
-            Component comp = queue.remove();
-            System.out.println(comp.getName());
-
-            long oldmapres = oldmap.getResourceAllocationForComponent(comp.getName());
-            long allocNum = Math.min(oldmapres, freeResources);
-            newMap.setAllocationForComponent(comp.getName(), allocNum);
-
-            freeResources -= allocNum;
-            if (freeResources == 0)
-                break;
-
-            // get all children, add to queue
-            Map<String, Double> children = comp.getChildren();
-            for (Map.Entry<String, Double> child : children.entrySet()) {
-                queue.add(topology.getComponent(child.getKey()));
-            }
-        }
-
-        return newMap;
+        return allocationMap;
     }
 }

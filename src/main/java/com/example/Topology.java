@@ -190,7 +190,10 @@ public class Topology {
         for (Map.Entry<String, Component> entry : components.entrySet()) {
             Component comp = entry.getValue();
             // System.out.println("comp : " + entry.getKey() + comp.getChildren().size());
-            if (comp.getParents().size() == 0) {
+            if (comp.getParents().size() == 0 ||
+                    (comp.getParents().size() == 1
+                     && comp.getParents().get(0).equalsIgnoreCase("null"))
+            ) {
                 this.spout.add(entry.getKey());
             }
         }

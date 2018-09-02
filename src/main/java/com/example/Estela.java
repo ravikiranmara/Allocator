@@ -213,8 +213,8 @@ public class Estela {
 
         while (freeResources > 0) {
             tableptr++;
-            // System.out.println("-------------------- Get Optimal Allocation ---------------------");
-            // System.out.println("System resources : " + freeResources + "table Ptr : " + tableptr);
+            System.out.println("-------------------- Get Optimal Allocation ---------------------");
+            System.out.println("System resources : " + freeResources + "table Ptr : " + tableptr);
 
             // check if we are at the end of the table
             if(tableptr >= maxtablePtr) {
@@ -226,8 +226,8 @@ public class Estela {
             AllocatorCell addCell = allocatorTable.get(tableptr);
             AllocationMap addMap = addCell.getAllocationMap();
             String addComp = addCell.getHeadComponent();
-            // System.out.println("** Consider allocation **");
-            // addMap.dump();
+            System.out.println("** Consider allocation **");
+            addMap.dump();
 
             if(currentAllocation.get(addComp) != null) {
                 if (currentAllocation.get(addComp).getAllocationMap().get(addComp).longValue() >=
@@ -288,8 +288,8 @@ public class Estela {
             currentAllocation.put(addComp, addMap);
             usedAllocation.add(addCell);
 
-            // System.out.println("current optimal allocation : ");
-            // optimalMap.dump();
+            System.out.println("current optimal allocation : ");
+            optimalMap.dump();
 
             // adjust the available resources after allocation
             freeResources = totalFreeResources - addMap.getTotalAllocatedAdditionalResources();
@@ -316,7 +316,7 @@ public class Estela {
         // sort table to get the roi sorting
         Collections.sort(allocatorTable);
         Collections.reverse(allocatorTable);
-        // this.dumpAllocatorTable(allocatorTable);
+        this.dumpAllocatorTable(allocatorTable);
 
         // get optimal allocation
         AllocationMap optimalMap = this.getOptimalAllocationMap(allocatorTable, freeResources);

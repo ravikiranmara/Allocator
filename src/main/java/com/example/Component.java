@@ -88,6 +88,10 @@ public class Component {
     }
 
     public boolean isCongested() {
+        // root is always congested
+        if(this.getParents().size() == 1 && getParents().get(0).equalsIgnoreCase("null"))
+            return true;
+
         if (this.getCurrent().getAllocated() * this.maxInputPerUnit <=
                 this.getCurrent().getIn())
             return true;
@@ -96,6 +100,10 @@ public class Component {
     }
 
     public boolean isCongestedProjected() {
+        // root is always congested
+        if(this.getParents().size() == 1 && getParents().get(0).equalsIgnoreCase("null"))
+            return true;
+
         if (this.getProjected().getIn() >=
             this.getProjected().getAllocated() * this.getMaxInputPerUnit())
             return true;
@@ -155,20 +163,6 @@ public class Component {
 
     public long getNewAllocated() {
         return this.getProjected().getAllocated() - this.getCurrent().getAllocated();
-    }
-
-    public boolean isCurrentCongested() {
-        if (this.current.getIn() >= this.getCurrent().getAllocated() * this.getMaxInputPerUnit())
-            return true;
-
-        return false;
-    }
-
-    public boolean isProjectedCongested() {
-        if (this.getProjected().getIn() >= this.getProjected().getAllocated() * this.getMaxInputPerUnit())
-            return true;
-
-        return false;
     }
 
     private void initialize() {

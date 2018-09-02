@@ -1,5 +1,6 @@
 package com.example;
 
+import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,6 +11,15 @@ public class AllocationMap {
     private Map<String, Long> allocationMap;
 
     AllocationMap() {
+        this.initialize();
+    }
+
+    AllocationMap(AllocationMap map) {
+        this.initialize();
+        this.allocationMap.putAll(map.allocationMap);
+    }
+
+    private void initialize() {
         allocationMap = new HashMap<String, Long>();
     }
 
@@ -18,7 +28,7 @@ public class AllocationMap {
         if (null == val)
             val = new Long(0);
 
-        this.allocationMap.put(component, val+1);
+        this.allocationMap.put(component, val + 1);
     }
 
     public void setAllocationForComponent(String component, long value) {

@@ -63,9 +63,9 @@ public class AllocatorCell implements Comparable<AllocatorCell> {
     public int compareTo(AllocatorCell allocatorCell) {
         // we might not need to consider this as separate case
         if (this.getCongestedBranches() > allocatorCell.getCongestedBranches()) {
-            return 1;
-        } else if (this.getCongestedBranches() < allocatorCell.getCongestedBranches()) {
             return -1;
+        } else if (this.getCongestedBranches() < allocatorCell.getCongestedBranches()) {
+            return 1;
         }
         // else if congested branches is same
 
