@@ -12,7 +12,7 @@
         }
       ],
       "input": 2,
-      "output": 118000,
+      "output": 16000,
       "cpuUsed": 1,
       "maxInputPerUnit": 1,
       "children": [

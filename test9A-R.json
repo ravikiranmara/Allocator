@@ -18,15 +18,15 @@
       "children": [
         {
           "child": "bolt_1",
-          "childRatio": 0.44
+          "childRatio": 0.4
         },
         {
           "child": "bolt_2",
-          "childRatio": 0.33
+          "childRatio": 0.3
         },
         {
           "child": "bolt_3",
-          "childRatio": 0.22
+          "childRatio": 0.3
         }
       ]
     },

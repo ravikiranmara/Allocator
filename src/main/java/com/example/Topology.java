@@ -15,7 +15,6 @@ public class Topology {
     List<String> congestedProjected;
     long currentThroughput;
 
-
     public void dump() {
         System.out.println("\n=====================================================================");
         System.out.println("TopologyConfig");
@@ -126,6 +125,7 @@ public class Topology {
 
                 Double ratio = parent.getChildOutputRatio(name);
                 long totalOutput = parent.getProjected().getOut();
+                // System.out.println("Input ratio from parents of comp - " + totalOutput + ":" + ratio);
                 totalInput += ratio * totalOutput;
             }
         }
@@ -140,6 +140,8 @@ public class Topology {
         Component component = this.getComponent(name);
 
         long required = component.getResourcesForInput(input);
+        if (component.getMaxInput(required) == input)
+            required+=1;
         // System.out.println("Required for projected comp - " + name + " ( " + input + ") :" + required);
         return required;
     }
@@ -147,6 +149,7 @@ public class Topology {
     public long getResourcesRequiredAdditionalProjected(String name) {
         long needed = this.getResourcesRequiredProjected(name);
         long allocated = this.getComponent(name).getCurrent().getAllocated();
+
         return (needed < allocated)? 0 : (needed - allocated);
     }
 
@@ -172,7 +175,7 @@ public class Topology {
         newProjected.setAllocated(numResources);
         newProjected.setCpuUsed(cpu);
 
-        // System.out.println("Input : " + input + ", out : " + newProjected.getOut() + ", resource : " + numResources);
+        // System.out.println(name + " Input : " + input + ", out : " + newProjected.getOut() + ", resource : " + numResources);
 
         return newProjected;
     }
@@ -294,6 +297,7 @@ public class Topology {
             totalOutput += comp.getCurrent().getOut();
         }
 
+        // System.out.println("getCurrentThroughput::projected : " + totalOutput);
         return totalOutput;
     }
 
@@ -304,6 +308,7 @@ public class Topology {
             totalOutput += comp.getProjected().getOut();
         }
 
+        // System.out.println("getProjectedThroughput::projected : " + totalOutput);
         return totalOutput;
     }
 
@@ -311,7 +316,7 @@ public class Topology {
         List<String> spouts = this.getSpout();
         Queue<Component> queue = new LinkedList<Component>();
 
-        // this logic is flawed.. :(
+        // this logic is flawed.. all spouts must be updated
         for (String spout : spouts) {
             queue.add(this.getComponent(spout));
         }

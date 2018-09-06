@@ -30,6 +30,7 @@ public class Estela2 {
     }
 
     public void dumpAllocatorTable(List<AllocatorCell> allocatorTable) {
+        System.out.println("dumpAllocatorTable::allocator table");
         for (AllocatorCell allocatorCell : allocatorTable) {
             allocatorCell.dump();
         }
@@ -39,13 +40,14 @@ public class Estela2 {
         List<AllocatorCell> allocatorTable = new ArrayList<AllocatorCell>();
 
         List<String> congested = topology.getCongestedProjected();
-        System.out.println("calculateAllocateTable::congested components : " + congested.size());
+        // System.out.println("calculateAllocateTable::congested components : " + congested.size());
         for (String cong : congested) System.out.println(cong);
 
         for(String comp : congested) {
             Component component = topology.getComponent(comp);
-            System.out.println("calculateAllocateTable::Processing comp : " + comp);
             long headDecongest = topology.getResourcesRequiredAdditionalProjected(comp);
+             System.out.println("calculateAllocateTable::Processing comp : " + comp + " " + headDecongest);
+
 
             // res => to be allocated to head. res-maxResources are allocated to rest of the body
             for (long res=1; res<=maxResources; res++) {
@@ -54,6 +56,7 @@ public class Estela2 {
                 // we have completely decongested head. Adding additional resources lead to no gain
                 // break with empty map
                 if (res > headDecongest) {
+                    System.out.println("Break for comp : " + comp + " req: " + headDecongest + "have: " + res);
                     break;
                 }
 
@@ -123,7 +126,7 @@ public class Estela2 {
         long currentAllocated = component.getCurrent().getAllocated();
 
         // process the root component
-        System.out.println("Calculate allocation for comp : " + component.getName() + ", res : " + rootRes);
+        // System.out.println("Calculate allocation for comp : " + component.getName() + ", res : " + rootRes);
         Map<String, Double> rootChildren = component.getChildren();
         for (Map.Entry<String, Double> child : rootChildren.entrySet()) {
             queue.add(topology.getComponent(child.getKey()));
@@ -135,7 +138,7 @@ public class Estela2 {
         while (queue.isEmpty() != true) {
             Component comp = queue.remove();
             long compCurrentAllocated = comp.getCurrent().getAllocated();
-            System.out.println("Queue Processing comp : " + comp.getName());
+            // System.out.println("Queue Processing comp : " + comp.getName());
 
             // get all children, add to queue
             Map<String, Double> children = comp.getChildren();
@@ -178,7 +181,7 @@ public class Estela2 {
             AllocationMap allocMap = calloc.getValue();
             for (Map.Entry<String, Long> allocEle : allocMap.getAllocationMap().entrySet()) {
                 if (allocEle.getKey().equalsIgnoreCase(headComp)) {
-                    //  There is a different superseeding allocation. Can't allocate this
+                    // There is a different superseeding allocation. Can't allocate this
                     // System.out.println("Superseeded by current");
                     return null;
                 }
@@ -221,8 +224,8 @@ public class Estela2 {
 
         while (freeResources > 0) {
             tableptr++;
-            System.out.println("getOptimalAllocationMap::-------------------- Get Optimal Allocation ---------------------");
-            System.out.println("getOptimalAllocationMap::System resources : " + freeResources + "table Ptr : " + tableptr);
+            // System.out.println("getOptimalAllocationMap::-------------------- Get Optimal Allocation ---------------------");
+            // System.out.println("getOptimalAllocationMap::System resources : " + freeResources + "table Ptr : " + tableptr);
 
             // check if we are at the end of the table
             if(tableptr >= maxtablePtr) {
@@ -234,8 +237,8 @@ public class Estela2 {
             AllocatorCell addCell = allocatorTable.get(tableptr);
             AllocationMap addMap = addCell.getAllocationMap();
             String addComp = addCell.getHeadComponent();
-            System.out.println("getOptimalAllocationMap::getOptimalAllocationMap::** Consider allocation **");
-            addMap.dump();
+            // System.out.println("getOptimalAllocationMap::getOptimalAllocationMap::** Consider allocation **");
+            // addMap.dump();
 
             if(currentAllocation.get(addComp) != null) {
                 if (currentAllocation.get(addComp).getAllocationMap().get(addComp).longValue() >=
@@ -296,8 +299,8 @@ public class Estela2 {
             currentAllocation.put(addComp, addMap);
             usedAllocation.add(addCell);
 
-            System.out.println("current optimal allocation : ");
-            optimalMap.dump();
+            // System.out.println("current optimal allocation : ");
+            // optimalMap.dump();
 
             // adjust the available resources after allocation
             freeResources = totalFreeResources - addMap.getTotalAllocatedAdditionalResources();
@@ -312,7 +315,7 @@ public class Estela2 {
         allocatorTable = this.calculateAllocateTable(topology, freeResources);
         // this.dumpAllocatorTable(allocatorTable);
 
-        System.out.println("getOptimalAllocation::~~~~~~~~   Sorted  ~~~~~~~~~~~");
+        // System.out.println("getOptimalAllocation::~~~~~~~~   Sorted  ~~~~~~~~~~~");
 
         // sort table to get the roi sorting
         Collections.sort(allocatorTable);
@@ -326,8 +329,8 @@ public class Estela2 {
 //            optimalMap.addAllocationForComponent(topology.getSpout().get(0), 1);
 //        }
 
-        System.out.println("getOptimalAllocation::all consideration");
-        for (AllocatorCell cell : allocatorTable) cell.dump();
+        // System.out.println("getOptimalAllocation::all consideration");
+        // for (AllocatorCell cell : allocatorTable) cell.dump();
 
         this.currentOptimal = new AllocationMap(optimalMap);
         return optimalMap;

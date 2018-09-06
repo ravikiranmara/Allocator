@@ -17,7 +17,7 @@ public class Allocator {
             long freeResources = in.nextLong();
 
             // Read file
-            String filePath = ("//home//wiz//git//Allocator//test9A.json");
+            String filePath = ("//home//wiz//git//Allocator//test17_StepCap.json");
             // String filePath = new String("//home//wiz//junk//test11.json");
             FileParser fileParser = new FileParser(filePath);
 
@@ -60,6 +60,8 @@ public class Allocator {
             System.out.println("Congested Count : " + topology.getCongestedProjected().size());
             for (String cong : topology.getCongestedProjected()) System.out.println(cong);
 
+            topology.dump();
+
         } catch (IOException ex) {
             System.out.println("IO exception while reading filename");
         }
@@ -74,48 +76,79 @@ public class Allocator {
         // System.out.println("Get Optimal Map for freeResources : " + freeResources);
         System.out.println("congested Count : " + topology.getCongestedProjected().size());
         optimalMap = estela.getOptimalAllocation(topology, freeResources);
-        System.out.println("Estela : dump optimal map");
-        optimalMap.dump();
+        // System.out.println("Estela : dump optimal map");
+        // optimalMap.dump();
 
         topology.propogateAllocation(optimalMap);
         long optincrease = topology.getProjectedThroughput() - topology.getCurrentThroughput();
         System.out.println("Estela::projected increase in throughput (optimal) : " + optincrease);
         System.out.println("Estela::congested Count : " + topology.getCongestedProjected().size());
+        for (String cong : topology.getCongestedProjected())
+            System.out.println("required for comp " + cong);
 
         List<AllocatorCell> usedAllocation = new LinkedList<AllocatorCell>();
         List<AllocatorCell> allocatorTable = new LinkedList<AllocatorCell>();
         AllocationMap subOptimalMap = new AllocationMap(optimalMap);
-        Topology subOptTopoogy = new Topology(topology);
 
         long remainingResources = freeResources-subOptimalMap.getTotalAllocatedAdditionalResources();
         System.out.println("Estela::(SubOptimal) remaining resources - " + remainingResources);
         while (remainingResources > 0) {
+            Topology subOptTopoogy = new Topology(topology);
             // remove used items from allocation table
             allocatorTable = estela.getAllocatorTable();
             usedAllocation = estela.calculateUsedAllocation(subOptimalMap);
             allocatorTable.removeAll(usedAllocation);
 
-            if(allocatorTable.isEmpty())
-                break;
+            AllocatorCell lowCell = new AllocatorCell();
+            if (allocatorTable.isEmpty()) {
+                List<String> congested = subOptTopoogy.getCongestedProjected();
+                List<String> spouts = subOptTopoogy.getSpout();
+                for (String comp : congested) {
+                    // man this code is fugly
+                    if (false == spouts.contains(comp)) {
+                        Component component = subOptTopoogy.getComponent(comp);
+                        AllocationMap map = estela.getAllocationForSubtree(component, 1, subOptTopoogy);
+                        lowCell.setAllocationMap(map);
+                        long throughputIncrease = estela.getThroughputIncrease(topology, map);
+                        lowCell.setThroughputIncrease(throughputIncrease);
 
-            System.out.println("Estela::(SubOptimal)-unused allocations");
-            for (AllocatorCell cell : allocatorTable)
-                cell.dump();
+                        // resource allocated
+                        long allocatedResources = map.getTotalAllocatedAdditionalResources();
+                        lowCell.setResourceAllocated(allocatedResources);
 
-            // Get cell that needs lowest resources {
-            AllocatorCell lowNumCell = allocatorTable.get(0);
-            for (AllocatorCell cell : allocatorTable) {
-                if(cell.getResourceAllocated() < lowNumCell.getResourceAllocated())
-                    lowNumCell = cell;
+                        // set roi
+                        if(allocatedResources != 0)
+                            lowCell.setRoi((double)throughputIncrease/allocatedResources);
+                        else lowCell.setRoi(0);
+
+                        // head component
+                        lowCell.setHeadComponent(comp);
+                    }
+                }
+            } else {
+                System.out.println("Estela::(SubOptimal)-unused allocations");
+                for (AllocatorCell cell : allocatorTable)
+                    cell.dump();
+
+                // Get cell that needs lowest resources
+
+                AllocatorCell lowNumCell = allocatorTable.get(allocatorTable.size()-1);
+                for (AllocatorCell cell : allocatorTable) {
+                    if(cell.getResourceAllocated() < lowNumCell.getResourceAllocated()
+                            && cell.getResourceAllocated() != 0)
+                        lowNumCell = cell;
+                }
+
+                lowCell = allocatorTable.get(0);
+                for (AllocatorCell rcell : allocatorTable) {
+                    if (rcell.getResourceAllocated() == lowNumCell.getResourceAllocated())
+                        if(rcell.getRoi() < lowCell.getRoi())
+                            lowCell = rcell;
+                }
             }
 
-            AllocatorCell lowCell = allocatorTable.get(0);
-            for (AllocatorCell rcell : allocatorTable) {
-                if (rcell.getResourceAllocated() == lowNumCell.getResourceAllocated())
-                    if(rcell.getRoi() < lowCell.getRoi())
-                        lowCell = rcell;
-            }
-            // }
+            System.out.println("Low Cell for Consideration:");
+            lowCell.dump();
 
             // prepare new topology with the subtree of the chosen allocation
             List<Component> subComponents = new LinkedList<Component>();
@@ -169,7 +202,8 @@ public class Allocator {
         long increase = topology.getProjectedThroughput() - topology.getCurrentThroughput();
         System.out.println("projected increase in throughput (optimal + greedy): " + increase);
         System.out.println("Congested Count : " + topology.getCongestedProjected().size());
-        for (String cong : topology.getCongestedProjected()) System.out.println(cong);
+        for (String cong : topology.getCongestedProjected())
+            System.out.println("required for comp " + cong);
 
         return optimalMap;
     }
