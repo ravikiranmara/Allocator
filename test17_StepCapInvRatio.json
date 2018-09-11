@@ -18,7 +18,7 @@
       "children": [
         {
           "child": "bolt_2",
-          "childRatio": 0.4
+          "childRatio": 0.25
         },
         {
           "child": "bolt_3",
@@ -26,7 +26,7 @@
         },
         {
           "child": "bolt_4",
-          "childRatio": 0.25
+          "childRatio": 0.4
         }
       ]
     },
@@ -38,18 +38,18 @@
           "parent": "bolt_1"
         }
       ],
-      "input": 800,
-      "output": 1600,
+      "input": 500,
+      "output": 1000,
       "cpuUsed": 1,
       "maxInputPerUnit": 900,
       "children": [
         {
           "child": "bolt_5",
-          "childRatio": 0.55
+          "childRatio": 0.45
         },
         {
           "child": "bolt_6",
-          "childRatio": 0.45
+          "childRatio": 0.55
         }
       ]
     },
@@ -68,11 +68,11 @@
       "children": [
         {
           "child": "bolt_7",
-          "childRatio": 0.6
+          "childRatio": 0.4
         },
         {
           "child": "bolt_8",
-          "childRatio": 0.4
+          "childRatio": 0.6
         }
       ]
     },
@@ -85,7 +85,7 @@
         }
       ],
       "input": 400,
-      "output": 1500,
+      "output": 1200,
       "cpuUsed": 1,
       "maxInputPerUnit": 400,
       "children": [
@@ -103,8 +103,8 @@
           "parent": "bolt_2"
         }
       ],
-      "input": 880,
-      "output": 1320,
+      "input": 450,
+      "output": 661,
       "cpuUsed": 1,
       "maxInputPerUnit": 1000,
       "children": [
@@ -126,8 +126,8 @@
           "parent": "bolt_2"
         }
       ],
-      "input": 720,
-      "output": 1440,
+      "input": 550,
+      "output": 1100,
       "cpuUsed": 1,
       "maxInputPerUnit": 900,
       "children": [
@@ -149,8 +149,8 @@
           "parent": "bolt_3"
         }
       ],
-      "input": 840,
-      "output": 840,
+      "input": 560,
+      "output": 560,
       "cpuUsed": 1,
       "maxInputPerUnit": 1100,
       "children": [
@@ -168,8 +168,8 @@
           "parent": "bolt_3"
         }
       ],
-      "input": 560,
-      "output": 560,
+      "input": 700,
+      "output": 700,
       "cpuUsed": 1,
       "maxInputPerUnit": 700,
       "children": [
@@ -194,11 +194,11 @@
       "children": [
         {
           "child": "bolt_16",
-          "childRatio": 0.6
+          "childRatio": 0.4
         },
         {
           "child": "bolt_17",
-          "childRatio": 0.4
+          "childRatio": 0.6
         }
       ]
     },
@@ -210,8 +210,8 @@
           "parent": "bolt_5"
         }
       ],
-      "input": 660,
-      "output": 660,
+      "input": 330,
+      "output": 330,
       "cpuUsed": 1,
       "maxInputPerUnit": 800
     },
@@ -223,8 +223,8 @@
           "parent": "bolt_5"
         }
       ],
-      "input": 660,
-      "output": 660,
+      "input": 330,
+      "output": 330,
       "cpuUsed": 1,
       "maxInputPerUnit": 700
     },
@@ -236,8 +236,8 @@
           "parent": "bolt_6"
         }
       ],
-      "input": 720,
-      "output": 720,
+      "input": 550,
+      "output": 550,
       "cpuUsed": 1,
       "maxInputPerUnit": 1300
     },
@@ -249,8 +249,8 @@
           "parent": "bolt_6"
         }
       ],
-      "input": 720,
-      "output": 720,
+      "input": 550,
+      "output": 550,
       "cpuUsed": 1,
       "maxInputPerUnit": 1200
     },
@@ -262,8 +262,8 @@
           "parent": "bolt_7"
         }
       ],
-      "input": 840,
-      "output": 840,
+      "input": 560,
+      "output": 560,
       "cpuUsed": 1,
       "maxInputPerUnit": 1300
     },
@@ -275,8 +275,8 @@
           "parent": "bolt_8"
         }
       ],
-      "input": 560,
-      "output": 560,
+      "input": 700,
+      "output": 700,
       "cpuUsed": 1,
       "maxInputPerUnit": 1100
     },
@@ -301,8 +301,8 @@
           "parent": "bolt_9"
         }
       ],
-      "input": 960,
-      "output": 960,
+      "input": 1300,
+      "output": 1300,
       "cpuUsed": 1,
       "maxInputPerUnit": 1300
     }

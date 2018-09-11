@@ -1,0 +1,164 @@
+{
+  "name": "Test10",
+  "cpuPerUnit": 10,
+  "numUnits": 10,
+  "components": [
+    {
+      "cname": "bolt_1",
+      "allocated": 2,
+      "parents": [
+        {
+          "parent": "null"
+        }
+      ],
+      "input": 2,
+      "output": 2000,
+      "cpuUsed": 1,
+      "maxInputPerUnit": 1,
+      "children": [
+        {
+          "child": "bolt_2",
+          "childRatio": 0.6
+        },
+        {
+          "child": "bolt_3",
+          "childRatio": 0.4
+        }
+      ]
+    },
+    {
+      "cname": "bolt_2",
+      "allocated": 1,
+      "parents": [
+        {
+          "parent": "bolt_1"
+        }
+      ],
+      "input": 600,
+      "output": 600,
+      "cpuUsed": 1,
+      "maxInputPerUnit": 600,
+      "children": [
+        {
+          "child": "bolt_4",
+          "childRatio": 0.8
+        },
+        {
+          "child": "bolt_5",
+          "childRatio": 0.2
+        }
+      ]
+    },
+    {
+      "cname": "bolt_3",
+      "allocated": 1,
+      "parents": [
+        {
+          "parent": "bolt_1"
+        }
+      ],
+      "input": 600,
+      "output": 600,
+      "cpuUsed": 1,
+      "maxInputPerUnit": 600
+    },
+    {
+      "cname": "bolt_4",
+      "allocated": 1,
+      "parents": [
+        {
+          "parent": "bolt_2"
+        }
+      ],
+      "input": 480,
+      "output": 480,
+      "cpuUsed": 1,
+      "maxInputPerUnit": 600,
+      "children": [
+        {
+          "child": "bolt_6",
+          "childRatio": 0.8
+        },
+        {
+          "child": "bolt_7",
+          "childRatio": 0.2
+        }
+      ]
+    },
+    {
+      "cname": "bolt_5",
+      "allocated": 1,
+      "parents": [
+        {
+          "parent": "bolt_2"
+        }
+      ],
+      "input": 120,
+      "output": 120,
+      "cpuUsed": 1,
+      "maxInputPerUnit": 600
+    },
+    {
+      "cname": "bolt_6",
+      "allocated": 1,
+      "parents": [
+        {
+          "parent": "bolt_4"
+        }
+      ],
+      "input": 384,
+      "output": 384,
+      "cpuUsed": 1,
+      "maxInputPerUnit": 600,
+      "children": [
+        {
+          "child": "bolt_8",
+          "childRatio": 0.75
+        },
+        {
+          "child": "bolt_9",
+          "childRatio": 0.25
+        }
+      ]
+    },
+    {
+      "cname": "bolt_7",
+      "allocated": 1,
+      "parents": [
+        {
+          "parent": "bolt_4"
+        }
+      ],
+      "input": 96,
+      "output": 96,
+      "cpuUsed": 1,
+      "maxInputPerUnit": 600
+    },
+    {
+      "cname": "bolt_8",
+      "allocated": 1,
+      "parents": [
+        {
+          "parent": "bolt_6"
+        }
+      ],
+      "input": 288,
+      "output": 288,
+      "cpuUsed": 1,
+      "maxInputPerUnit": 600
+    },
+    {
+      "cname": "bolt_9",
+      "allocated": 1,
+      "parents": [
+        {
+          "parent": "bolt_6"
+        }
+      ],
+      "input": 96,
+      "output": 96,
+      "cpuUsed": 1,
+      "maxInputPerUnit": 600
+    }
+  ]
+}

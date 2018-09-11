@@ -107,8 +107,8 @@
           "parent": "bolt_1"
         }
       ],
-      "input": 2720,
-      "output": 2720,
+      "input": 2800,
+      "output": 2800,
       "cpuUsed": 1,
       "maxInputPerUnit": 2800
     },

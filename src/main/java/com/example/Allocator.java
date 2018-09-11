@@ -17,7 +17,7 @@ public class Allocator {
             long freeResources = in.nextLong();
 
             // Read file
-            String filePath = ("//home//wiz//git//Allocator//test17_StepCap.json");
+            String filePath = ("//home//wiz//git//Allocator//testMixSkewR.json");
             // String filePath = new String("//home//wiz//junk//test11.json");
             FileParser fileParser = new FileParser(filePath);
 
@@ -60,7 +60,7 @@ public class Allocator {
             System.out.println("Congested Count : " + topology.getCongestedProjected().size());
             for (String cong : topology.getCongestedProjected()) System.out.println(cong);
 
-            topology.dump();
+            // topology.dump();
 
         } catch (IOException ex) {
             System.out.println("IO exception while reading filename");

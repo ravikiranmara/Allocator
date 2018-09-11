@@ -297,7 +297,7 @@ public class Topology {
             totalOutput += comp.getCurrent().getOut();
         }
 
-        // System.out.println("getCurrentThroughput::projected : " + totalOutput);
+        // System.out.println("getCurrentThroughput::Current : " + totalOutput);
         return totalOutput;
     }
 
